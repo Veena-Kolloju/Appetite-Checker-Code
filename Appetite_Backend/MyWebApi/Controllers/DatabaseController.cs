@@ -1,6 +1,8 @@
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using MyWebApi.Data;
+using MyWebApi.Models;
+using Microsoft.AspNetCore.Authorization;
 
 namespace MyWebApi.Controllers;
 
@@ -159,4 +161,143 @@ public class DatabaseController : ControllerBase
             });
         }
     }
+
+    /// <summary>
+    /// Get all users (Admin only)
+    /// </summary>
+    [HttpGet("users")]
+    [Authorize(Roles = "admin")]
+    public async Task<ActionResult> GetUsers()
+    {
+        try
+        {
+            var users = await _context.Users
+                .Select(u => new
+                {
+                    u.Id,
+                    u.Name,
+                    EmailId = u.Email,
+                    Role = u.Roles,
+                    OrganizationName = u.OrganizationName,
+                    OrgnId = u.OrganizationId,
+                    u.CreatedAt,
+                    u.IsActive
+                })
+                .ToListAsync();
+
+            return Ok(users);
+        }
+        catch (Exception ex)
+        {
+            return BadRequest(new { Error = ex.Message });
+        }
+    }
+
+    /// <summary>
+    /// Create new user (Admin only)
+    /// </summary>
+    [HttpPost("users")]
+    [Authorize(Roles = "admin")]
+    public async Task<ActionResult> CreateUser([FromBody] DatabaseCreateUserRequest request)
+    {
+        try
+        {
+            var user = new DbUser
+            {
+                Id = Guid.NewGuid().ToString(),
+                Name = request.Name,
+                Email = request.EmailId,
+                Roles = request.Role,
+                OrganizationName = request.OrganizationName,
+                OrganizationId = request.OrgnId,
+                CreatedAt = DateTime.UtcNow,
+                IsActive = true,
+                PasswordHash = "temp_password_hash" // Should be properly hashed
+            };
+
+            _context.Users.Add(user);
+            await _context.SaveChangesAsync();
+
+            return Ok(new { Message = "User created successfully", UserId = user.Id });
+        }
+        catch (Exception ex)
+        {
+            return BadRequest(new { Error = ex.Message });
+        }
+    }
+
+    /// <summary>
+    /// Update user (Admin only)
+    /// </summary>
+    [HttpPut("users/{userId}")]
+    [Authorize(Roles = "admin")]
+    public async Task<ActionResult> UpdateUser(string userId, [FromBody] DatabaseUpdateUserRequest request)
+    {
+        try
+        {
+            var user = await _context.Users.FindAsync(userId);
+            if (user == null)
+            {
+                return NotFound(new { Error = "User not found" });
+            }
+
+            user.Name = request.Name;
+            user.Email = request.EmailId;
+            user.Roles = request.Role;
+            user.OrganizationName = request.OrganizationName;
+            user.OrganizationId = request.OrgnId;
+
+            await _context.SaveChangesAsync();
+
+            return Ok(new { Message = "User updated successfully" });
+        }
+        catch (Exception ex)
+        {
+            return BadRequest(new { Error = ex.Message });
+        }
+    }
+
+    /// <summary>
+    /// Delete user (Admin only)
+    /// </summary>
+    [HttpDelete("users/{userId}")]
+    [Authorize(Roles = "admin")]
+    public async Task<ActionResult> DeleteUser(string userId)
+    {
+        try
+        {
+            var user = await _context.Users.FindAsync(userId);
+            if (user == null)
+            {
+                return NotFound(new { Error = "User not found" });
+            }
+
+            _context.Users.Remove(user);
+            await _context.SaveChangesAsync();
+
+            return Ok(new { Message = "User deleted successfully" });
+        }
+        catch (Exception ex)
+        {
+            return BadRequest(new { Error = ex.Message });
+        }
+    }
+}
+
+public class DatabaseCreateUserRequest
+{
+    public string Name { get; set; } = string.Empty;
+    public string EmailId { get; set; } = string.Empty;
+    public string Role { get; set; } = string.Empty;
+    public string? OrganizationName { get; set; }
+    public string? OrgnId { get; set; }
+}
+
+public class DatabaseUpdateUserRequest
+{
+    public string Name { get; set; } = string.Empty;
+    public string EmailId { get; set; } = string.Empty;
+    public string Role { get; set; } = string.Empty;
+    public string? OrganizationName { get; set; }
+    public string? OrgnId { get; set; }
 }

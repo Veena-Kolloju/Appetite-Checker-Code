@@ -17,9 +17,12 @@ public class SeedService
 
     public async Task SeedInitialDataAsync()
     {
-        // Check if data already exists
+        // Clear existing users and reseed
         if (await _context.Users.AnyAsync())
-            return;
+        {
+            _context.Users.RemoveRange(_context.Users);
+            await _context.SaveChangesAsync();
+        }
 
         var users = new[]
         {
@@ -30,7 +33,7 @@ public class SeedService
                 Email = "admin@appetitechecker.com",
                 PasswordHash = _passwordService.HashPassword("Admin123!"),
                 Roles = "admin",
-                OrganizationId = "org-001",
+                OrganizationId = "SYS001",
                 OrganizationName = "System Organization",
                 CreatedAt = DateTime.UtcNow,
                 IsActive = true,
@@ -44,7 +47,7 @@ public class SeedService
                 Email = "carrier@example.com",
                 PasswordHash = _passwordService.HashPassword("Admin123!"),
                 Roles = "carrier",
-                OrganizationId = "org-002",
+                OrganizationId = "ABC001",
                 OrganizationName = "ABC Insurance",
                 CreatedAt = DateTime.UtcNow,
                 IsActive = true,
@@ -57,9 +60,37 @@ public class SeedService
                 Name = "Jane Agent",
                 Email = "agent@example.com",
                 PasswordHash = _passwordService.HashPassword("Admin123!"),
-                Roles = "agent",
-                OrganizationId = "org-003",
+                Roles = "user",
+                OrganizationId = "XYZ001",
                 OrganizationName = "XYZ Brokerage",
+                CreatedAt = DateTime.UtcNow,
+                IsActive = true,
+                AuthProvider = "local",
+                FailedLoginAttempts = 0
+            },
+            new DbUser
+            {
+                Id = "usr-004",
+                Name = "Mike Manager",
+                Email = "manager@demo.com",
+                PasswordHash = _passwordService.HashPassword("Admin123!"),
+                Roles = "admin",
+                OrganizationId = "DEMO001",
+                OrganizationName = "Demo Corporation",
+                CreatedAt = DateTime.UtcNow,
+                IsActive = true,
+                AuthProvider = "local",
+                FailedLoginAttempts = 0
+            },
+            new DbUser
+            {
+                Id = "usr-005",
+                Name = "Sarah Smith",
+                Email = "sarah@carrier2.com",
+                PasswordHash = _passwordService.HashPassword("Admin123!"),
+                Roles = "carrier",
+                OrganizationId = "DEF001",
+                OrganizationName = "DEF Insurance Group",
                 CreatedAt = DateTime.UtcNow,
                 IsActive = true,
                 AuthProvider = "local",
@@ -69,48 +100,51 @@ public class SeedService
 
         _context.Users.AddRange(users);
         
-        // Seed initial products
-        var products = new[]
+        // Seed initial products only if they don't exist
+        if (!await _context.Products.AnyAsync())
         {
-            new DbProduct
+            var products = new[]
             {
-                Id = "prod-001",
-                Name = "General Liability - SME",
-                Carrier = "Acme Insurance",
-                PerOccurrence = 1000000,
-                Aggregate = 2000000,
-                MinAnnualRevenue = 0,
-                MaxAnnualRevenue = 5000000,
-                NaicsAllowed = "445310,722511",
-                CreatedAt = DateTime.UtcNow.AddDays(-30)
-            },
-            new DbProduct
-            {
-                Id = "prod-002",
-                Name = "Property - Retail",
-                Carrier = "Acme Insurance",
-                PerOccurrence = 500000,
-                Aggregate = 1000000,
-                MinAnnualRevenue = 0,
-                MaxAnnualRevenue = 2000000,
-                NaicsAllowed = "445110,445120",
-                CreatedAt = DateTime.UtcNow.AddDays(-20)
-            },
-            new DbProduct
-            {
-                Id = "prod-003",
-                Name = "Workers Comp - SME",
-                Carrier = "Beta Mutual",
-                PerOccurrence = 1000000,
-                Aggregate = 1000000,
-                MinAnnualRevenue = 0,
-                MaxAnnualRevenue = 3000000,
-                NaicsAllowed = "722511,561720",
-                CreatedAt = DateTime.UtcNow.AddDays(-15)
-            }
-        };
-        
-        _context.Products.AddRange(products);
+                new DbProduct
+                {
+                    Id = "prod-001",
+                    Name = "General Liability - SME",
+                    Carrier = "Acme Insurance",
+                    PerOccurrence = 1000000,
+                    Aggregate = 2000000,
+                    MinAnnualRevenue = 0,
+                    MaxAnnualRevenue = 5000000,
+                    NaicsAllowed = "445310,722511",
+                    CreatedAt = DateTime.UtcNow.AddDays(-30)
+                },
+                new DbProduct
+                {
+                    Id = "prod-002",
+                    Name = "Property - Retail",
+                    Carrier = "Acme Insurance",
+                    PerOccurrence = 500000,
+                    Aggregate = 1000000,
+                    MinAnnualRevenue = 0,
+                    MaxAnnualRevenue = 2000000,
+                    NaicsAllowed = "445110,445120",
+                    CreatedAt = DateTime.UtcNow.AddDays(-20)
+                },
+                new DbProduct
+                {
+                    Id = "prod-003",
+                    Name = "Workers Comp - SME",
+                    Carrier = "Beta Mutual",
+                    PerOccurrence = 1000000,
+                    Aggregate = 1000000,
+                    MinAnnualRevenue = 0,
+                    MaxAnnualRevenue = 3000000,
+                    NaicsAllowed = "722511,561720",
+                    CreatedAt = DateTime.UtcNow.AddDays(-15)
+                }
+            };
+            
+            _context.Products.AddRange(products);
+        }
         await _context.SaveChangesAsync();
     }
 }

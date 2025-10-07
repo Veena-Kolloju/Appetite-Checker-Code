@@ -22,6 +22,8 @@ import RuleConfiguration from '../components/RuleConfiguration';
 import UploadRules from '../components/UploadRules';
 import AddRule from '../components/AddRule';
 import Analytics from '../components/Analytics';
+import UserList from '../components/UserList';
+import UserForm from '../components/UserForm';
 
 const Dashboard = () => {
   const [currentUser, setCurrentUser] = useState(null);
@@ -30,6 +32,7 @@ const Dashboard = () => {
   const [showCarrierForm, setShowCarrierForm] = useState(false);
   const [showProductForm, setShowProductForm] = useState(false);
   const [showAddRule, setShowAddRule] = useState(false);
+  const [showUserForm, setShowUserForm] = useState(false);
   const navigate = useNavigate();
 
   useEffect(() => {
@@ -196,6 +199,18 @@ const Dashboard = () => {
               <UploadRules />
             ) : activeSection === 'analytics' ? (
               <Analytics />
+            ) : activeSection === 'users' ? (
+              showUserForm ? (
+                <UserForm 
+                  onBack={() => setShowUserForm(false)}
+                  onSuccess={() => {
+                    setShowUserForm(false);
+                    alert('User created successfully!');
+                  }}
+                />
+              ) : (
+                <UserList onCreateUser={() => setShowUserForm(true)} />
+              )
             ) : (
               <SectionContent section={activeSection} currentUser={currentUser} />
             )}
