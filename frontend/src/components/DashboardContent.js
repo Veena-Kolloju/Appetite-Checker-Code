@@ -178,27 +178,41 @@ const DashboardContent = ({ onNavigate }) => {
 
       {/* Stats Grid */}
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
-        {stats.map((stat, index) => (
-          <motion.div
-            key={stat.title}
-            initial={{ opacity: 0, scale: 0.9 }}
-            animate={{ opacity: 1, scale: 1 }}
-            transition={{ delay: index * 0.1 }}
-            whileHover={{ scale: 1.05, y: -5 }}
-            className="bg-white rounded-2xl p-6 shadow-lg hover:shadow-2xl transition-all duration-300 border border-gray-100"
-          >
-            <div className="flex items-center justify-between mb-4">
-              <div className={`w-12 h-12 bg-gradient-to-r ${stat.color} rounded-xl flex items-center justify-center animate-pulse-slow`}>
-                <stat.icon className="w-6 h-6 text-white" />
+        {stats.map((stat, index) => {
+          const getNavigationTarget = (title) => {
+            switch (title) {
+              case 'Active Rules': return 'rule-library';
+              case 'Total Carriers': return 'carriers';
+              case 'Total Users': return 'users';
+              case 'Products': return 'product-library';
+              default: return 'dashboard';
+            }
+          };
+          
+          return (
+            <motion.button
+              key={stat.title}
+              initial={{ opacity: 0, scale: 0.9 }}
+              animate={{ opacity: 1, scale: 1 }}
+              transition={{ delay: index * 0.1 }}
+              whileHover={{ scale: 1.05, y: -5 }}
+              whileTap={{ scale: 0.98 }}
+              onClick={() => onNavigate(getNavigationTarget(stat.title))}
+              className="bg-white rounded-2xl p-6 shadow-lg hover:shadow-2xl transition-all duration-300 border border-gray-100 cursor-pointer text-left w-full"
+            >
+              <div className="flex items-center justify-between mb-4">
+                <div className={`w-12 h-12 bg-gradient-to-r ${stat.color} rounded-xl flex items-center justify-center animate-pulse-slow`}>
+                  <stat.icon className="w-6 h-6 text-white" />
+                </div>
+                <span className="text-sm font-semibold text-success-600 bg-success-100 px-2 py-1 rounded-full">
+                  {stat.change}
+                </span>
               </div>
-              <span className="text-sm font-semibold text-success-600 bg-success-100 px-2 py-1 rounded-full">
-                {stat.change}
-              </span>
-            </div>
-            <h3 className="text-2xl font-bold text-gray-800 mb-1">{stat.value}</h3>
-            <p className="text-gray-600 text-sm font-medium">{stat.title}</p>
-          </motion.div>
-        ))}
+              <h3 className="text-2xl font-bold text-gray-800 mb-1">{stat.value}</h3>
+              <p className="text-gray-600 text-sm font-medium">{stat.title}</p>
+            </motion.button>
+          );
+        })}
       </div>
 
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
