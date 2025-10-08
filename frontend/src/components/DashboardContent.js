@@ -17,9 +17,17 @@ const DashboardContent = ({ onNavigate }) => {
   const [dashboardData, setDashboardData] = useState(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState('');
+  const [userRole, setUserRole] = useState(null);
 
   useEffect(() => {
     loadDashboardData();
+    
+    // Get user role from localStorage
+    const user = localStorage.getItem('user');
+    if (user) {
+      const userData = JSON.parse(user);
+      setUserRole(userData.roles?.[0] || 'user');
+    }
   }, []);
 
   const loadDashboardData = async () => {
@@ -39,7 +47,7 @@ const DashboardContent = ({ onNavigate }) => {
   const getStats = () => {
     if (!dashboardData) return [];
     
-    return [
+    const allStats = [
       { 
         title: 'Active Rules', 
         value: dashboardData.totalRules.toString(), 
@@ -59,7 +67,8 @@ const DashboardContent = ({ onNavigate }) => {
         value: dashboardData.totalUsers.toString(), 
         icon: Users, 
         color: 'from-blue-500 to-blue-600', 
-        change: dashboardData.totalUsers > 0 ? 'Active' : 'No Users'
+        change: dashboardData.totalUsers > 0 ? 'Active' : 'No Users',
+        adminOnly: true
       },
       { 
         title: 'Products', 
@@ -69,6 +78,14 @@ const DashboardContent = ({ onNavigate }) => {
         change: 'Available'
       },
     ];
+    
+    // Filter stats based on user role
+    return allStats.filter(stat => {
+      if (stat.adminOnly && userRole !== 'admin') {
+        return false;
+      }
+      return true;
+    });
   };
 
   const stats = getStats();
