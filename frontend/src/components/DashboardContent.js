@@ -60,7 +60,8 @@ const DashboardContent = ({ onNavigate }) => {
         value: dashboardData.totalCarriers.toString(), 
         icon: Users, 
         color: 'from-success-500 to-success-600', 
-        change: dashboardData.totalCarriers > 0 ? 'Active' : 'No Data'
+        change: dashboardData.totalCarriers > 0 ? 'Active' : 'No Data',
+        hideForCarrier: true
       },
       { 
         title: 'Total Users', 
@@ -82,6 +83,9 @@ const DashboardContent = ({ onNavigate }) => {
     // Filter stats based on user role
     return allStats.filter(stat => {
       if (stat.adminOnly && userRole !== 'admin') {
+        return false;
+      }
+      if (stat.hideForCarrier && userRole === 'carrier') {
         return false;
       }
       return true;
