@@ -32,14 +32,6 @@ const Sidebar = ({ activeSection, setActiveSection }) => {
     const baseItems = [
       { id: 'dashboard', label: 'Dashboard', icon: LayoutDashboard, color: 'from-primary-500 to-primary-600' },
       { id: 'carriers', label: 'Carriers', icon: Users, color: 'from-blue-500 to-blue-600', adminOnly: true },
-      { 
-        id: 'carrier-onboarding', 
-        label: 'Carrier Onboarding', 
-        icon: UserPlus, 
-        color: 'from-success-500 to-success-600',
-        disabled: userRole === 'carrier',
-        disabledMessage: 'You are already an onboarded carrier. Use My Profile to view your details.'
-      },
       { id: 'product-library', label: 'Product Library', icon: Package, color: 'from-purple-500 to-purple-600' },
       { id: 'rule-library', label: 'Rule Library', icon: BookOpen, color: 'from-accent-500 to-accent-600' },
       { id: 'users', label: 'Users', icon: User, color: 'from-indigo-500 to-indigo-600', adminOnly: true },

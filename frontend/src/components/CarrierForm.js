@@ -28,7 +28,6 @@ const CarrierForm = ({ onBack, onSuccess }) => {
           id: '',
           name: formData.organizationName
         },
-        createdAt: new Date().toISOString(),
         isActive: true,
         lastLoginAt: null,
         authProvider: 'local'
@@ -72,7 +71,22 @@ const CarrierForm = ({ onBack, onSuccess }) => {
         <form onSubmit={handleSubmit} className="space-y-6">
           <div>
             <label className="block text-sm font-medium text-gray-700 mb-2">
-              Name *
+              Organization Name *
+            </label>
+            <input
+              type="text"
+              name="organizationName"
+              value={formData.organizationName}
+              onChange={handleChange}
+              required
+              className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-transparent"
+              placeholder="Enter organization name"
+            />
+          </div>
+
+          <div>
+            <label className="block text-sm font-medium text-gray-700 mb-2">
+              Contact Name *
             </label>
             <input
               type="text"
@@ -81,7 +95,7 @@ const CarrierForm = ({ onBack, onSuccess }) => {
               onChange={handleChange}
               required
               className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-transparent"
-              placeholder="Enter carrier name"
+              placeholder="Enter contact name"
             />
           </div>
 
@@ -97,21 +111,6 @@ const CarrierForm = ({ onBack, onSuccess }) => {
               required
               className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-transparent"
               placeholder="Enter email address"
-            />
-          </div>
-
-          <div>
-            <label className="block text-sm font-medium text-gray-700 mb-2">
-              Organization Name *
-            </label>
-            <input
-              type="text"
-              name="organizationName"
-              value={formData.organizationName}
-              onChange={handleChange}
-              required
-              className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-transparent"
-              placeholder="Enter organization name"
             />
           </div>
 
