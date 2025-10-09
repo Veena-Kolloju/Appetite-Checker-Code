@@ -161,26 +161,39 @@ const UserList = ({ onCreateUser }) => {
               </div>
             ) : (
               <div className="flex justify-between items-start">
-                <div className="flex-1">
-                  <h3 className="font-semibold text-lg">{user.name}</h3>
-                  <p className="text-gray-600">{user.emailId}</p>
-                  <div className="flex gap-2 mt-2">
-                    <span className={`px-2 py-1 rounded-full text-xs ${
+                <div className="flex-1 space-y-3">
+                  <div>
+                    <label className="block text-sm font-medium text-gray-500 mb-1">Name</label>
+                    <span className="text-lg font-semibold text-gray-900">{user.name}</span>
+                  </div>
+                  
+                  <div>
+                    <label className="block text-sm font-medium text-gray-500 mb-1">Email</label>
+                    <span className="text-gray-700">{user.emailId}</span>
+                  </div>
+                  
+                  <div>
+                    <label className="block text-sm font-medium text-gray-500 mb-1">Role</label>
+                    <span className={`inline-block px-2 py-1 rounded-full text-xs ${
                       user.role === 'admin' ? 'bg-red-100 text-red-800' :
                       user.role === 'carrier' ? 'bg-blue-100 text-blue-800' :
                       'bg-green-100 text-green-800'
                     }`}>
                       {user.role}
                     </span>
-                    {user.organizationName && (
-                      <span className="px-2 py-1 bg-purple-100 text-purple-800 rounded-full text-xs">
-                        {user.organizationName}
-                      </span>
-                    )}
                   </div>
+                  
+                  {user.organizationName && (
+                    <div>
+                      <label className="block text-sm font-medium text-gray-500 mb-1">Organization</label>
+                      <span className="text-gray-700">{user.organizationName}</span>
+                    </div>
+                  )}
+                  
                   {user.orgnId && (
-                    <div className="mt-2 text-sm text-gray-500">
-                      Org ID: {user.orgnId}
+                    <div>
+                      <label className="block text-sm font-medium text-gray-500 mb-1">Organization ID</label>
+                      <span className="text-gray-700">{user.orgnId}</span>
                     </div>
                   )}
                 </div>
