@@ -4,9 +4,7 @@ import { useNavigate } from 'react-router-dom';
 import { 
   LogOut, 
   Bell,
-  Search,
-  Menu,
-  X
+  Search
 } from 'lucide-react';
 import Sidebar from '../components/Sidebar';
 import DashboardContent from '../components/DashboardContent';
@@ -28,7 +26,7 @@ import UserForm from '../components/UserForm';
 const Dashboard = () => {
   const [currentUser, setCurrentUser] = useState(null);
   const [activeSection, setActiveSection] = useState('dashboard');
-  const [sidebarOpen, setSidebarOpen] = useState(true);
+
   const [showCarrierForm, setShowCarrierForm] = useState(false);
   const [showProductForm, setShowProductForm] = useState(false);
   const [editingProduct, setEditingProduct] = useState(null);
@@ -61,7 +59,7 @@ const Dashboard = () => {
   return (
     <div className="min-h-screen bg-gradient-to-br from-gray-50 via-blue-50 to-purple-50 flex">
       {/* Sidebar */}
-      <div className={`${sidebarOpen ? 'w-80' : 'w-20'} transition-all duration-300 flex-shrink-0`}>
+      <div className="flex-shrink-0">
         <Sidebar activeSection={activeSection} setActiveSection={setActiveSection} />
       </div>
 
@@ -75,12 +73,6 @@ const Dashboard = () => {
         >
           <div className="flex items-center justify-between">
             <div className="flex items-center space-x-4">
-              <button
-                onClick={() => setSidebarOpen(!sidebarOpen)}
-                className="p-2 text-gray-600 hover:text-gray-800 hover:bg-gray-100 rounded-lg transition-all"
-              >
-                {sidebarOpen ? <X className="w-5 h-5" /> : <Menu className="w-5 h-5" />}
-              </button>
               <div>
                 <h1 className="text-2xl font-bold bg-gradient-to-r from-primary-600 to-accent-600 bg-clip-text text-transparent">
                   Canvas Portal
