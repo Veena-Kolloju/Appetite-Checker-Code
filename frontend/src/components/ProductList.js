@@ -1,13 +1,14 @@
 import React, { useState, useEffect } from 'react';
 import { motion } from 'framer-motion';
-import { Package, Plus, Search } from 'lucide-react';
+import { Package, Plus, Search, Edit, Trash2 } from 'lucide-react';
 import { productService } from '../services/productService';
 
-const ProductList = ({ onCreateProduct }) => {
+const ProductList = ({ onCreateProduct, onEditProduct }) => {
   const [products, setProducts] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState('');
   const [userRole, setUserRole] = useState('');
+  const [deleteConfirm, setDeleteConfirm] = useState(null);
 
   useEffect(() => {
     const user = localStorage.getItem('user');
@@ -28,6 +29,26 @@ const ProductList = ({ onCreateProduct }) => {
       setError(err.message);
     } finally {
       setLoading(false);
+    }
+  };
+
+  const handleDelete = async (productId) => {
+    try {
+      await productService.deleteProduct(productId);
+      setProducts(products.filter(p => p.id !== productId));
+      setDeleteConfirm(null);
+    } catch (err) {
+      setError(err.message);
+    }
+  };
+
+  const handleEdit = async (product) => {
+    try {
+      // Get full product details for editing
+      const fullProduct = await productService.getProduct(product.id);
+      onEditProduct(fullProduct);
+    } catch (err) {
+      setError(err.message);
     }
   };
 
@@ -79,7 +100,25 @@ const ProductList = ({ onCreateProduct }) => {
                   <span>NAICS: {product.naicsAllowed || 'Not specified'}</span>
                 </div>
               </div>
-              <div className="text-right">
+              <div className="flex items-center space-x-2">
+                {(userRole === 'admin' || userRole === 'carrier') && (
+                  <>
+                    <button
+                      onClick={() => handleEdit(product)}
+                      className="p-2 text-blue-600 hover:bg-blue-50 rounded-lg transition-colors"
+                      title="Edit Product"
+                    >
+                      <Edit className="w-4 h-4" />
+                    </button>
+                    <button
+                      onClick={() => setDeleteConfirm(product.id)}
+                      className="p-2 text-red-600 hover:bg-red-50 rounded-lg transition-colors"
+                      title="Delete Product"
+                    >
+                      <Trash2 className="w-4 h-4" />
+                    </button>
+                  </>
+                )}
                 <span className="px-2 py-1 bg-green-100 text-green-800 rounded-full text-xs">
                   {product.id}
                 </span>
@@ -92,6 +131,36 @@ const ProductList = ({ onCreateProduct }) => {
       {products.length === 0 && (
         <div className="text-center py-8 text-gray-500">
           No products found
+        </div>
+      )}
+
+      {/* Delete Confirmation Dialog */}
+      {deleteConfirm && (
+        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
+          <motion.div
+            initial={{ opacity: 0, scale: 0.9 }}
+            animate={{ opacity: 1, scale: 1 }}
+            className="bg-white rounded-lg p-6 max-w-md mx-4"
+          >
+            <h3 className="text-lg font-semibold mb-4">Delete Product</h3>
+            <p className="text-gray-600 mb-6">
+              Are you sure you want to delete this product? This action cannot be undone.
+            </p>
+            <div className="flex space-x-3">
+              <button
+                onClick={() => setDeleteConfirm(null)}
+                className="flex-1 px-4 py-2 border border-gray-300 text-gray-700 rounded-lg hover:bg-gray-50"
+              >
+                Cancel
+              </button>
+              <button
+                onClick={() => handleDelete(deleteConfirm)}
+                className="flex-1 px-4 py-2 bg-red-500 text-white rounded-lg hover:bg-red-600"
+              >
+                Delete
+              </button>
+            </div>
+          </motion.div>
         </div>
       )}
     </motion.div>

@@ -3,7 +3,7 @@ import { motion } from 'framer-motion';
 import { Package, ArrowLeft } from 'lucide-react';
 import { productService } from '../services/productService';
 
-const ProductForm = ({ onBack, onSuccess }) => {
+const ProductForm = ({ onBack, onSuccess, editProduct = null }) => {
   const [formData, setFormData] = useState({
     name: '',
     description: '',
@@ -18,13 +18,25 @@ const ProductForm = ({ onBack, onSuccess }) => {
     if (user) {
       const userData = JSON.parse(user);
       setCurrentUser(userData);
-      // Auto-populate carrier name from user's organization or name
-      setFormData(prev => ({
-        ...prev,
-        carrier: userData.name || 'Default Carrier'
-      }));
+      
+      if (editProduct) {
+        // Pre-populate form with existing product data
+        setFormData({
+          name: editProduct.name || '',
+          description: editProduct.description || '',
+          productType: editProduct.productType || '',
+          naicsAllowed: editProduct.naicsAllowed || '',
+          carrier: editProduct.carrier || ''
+        });
+      } else {
+        // Auto-populate carrier name from user's organization or name
+        setFormData(prev => ({
+          ...prev,
+          carrier: userData.name || 'Default Carrier'
+        }));
+      }
     }
-  }, []);
+  }, [editProduct]);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState('');
 
@@ -35,20 +47,24 @@ const ProductForm = ({ onBack, onSuccess }) => {
 
     try {
       const productData = {
-        id: '',
+        id: editProduct?.id || '',
         name: formData.name,
         description: formData.description,
         productType: formData.productType,
         carrier: formData.carrier,
         naicsAllowed: formData.naicsAllowed,
-        perOccurrence: 1000000,
-        aggregate: 2000000,
-        minAnnualRevenue: 0,
-        maxAnnualRevenue: 5000000,
-        createdAt: new Date().toISOString()
+        perOccurrence: editProduct?.perOccurrence || 1000000,
+        aggregate: editProduct?.aggregate || 2000000,
+        minAnnualRevenue: editProduct?.minAnnualRevenue || 0,
+        maxAnnualRevenue: editProduct?.maxAnnualRevenue || 5000000,
+        createdAt: editProduct?.createdAt || new Date().toISOString()
       };
 
-      await productService.createProduct(productData);
+      if (editProduct) {
+        await productService.updateProduct(editProduct.id, productData);
+      } else {
+        await productService.createProduct(productData);
+      }
       onSuccess();
     } catch (err) {
       setError(err.message);
@@ -77,7 +93,7 @@ const ProductForm = ({ onBack, onSuccess }) => {
             <ArrowLeft className="w-5 h-5" />
           </button>
           <Package className="w-6 h-6 text-primary-500 mr-2" />
-          <h2 className="text-2xl font-bold">Add New Product</h2>
+          <h2 className="text-2xl font-bold">{editProduct ? 'Edit Product' : 'Add New Product'}</h2>
         </div>
 
         {error && (
@@ -176,7 +192,7 @@ const ProductForm = ({ onBack, onSuccess }) => {
               disabled={loading}
               className="flex-1 px-4 py-2 bg-primary-500 text-white rounded-lg hover:bg-primary-600 disabled:opacity-50"
             >
-              {loading ? 'Creating...' : 'Create Product'}
+              {loading ? (editProduct ? 'Updating...' : 'Creating...') : (editProduct ? 'Update Product' : 'Create Product')}
             </button>
           </div>
         </form>

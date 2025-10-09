@@ -140,6 +140,42 @@ public class CanvasController : ControllerBase
     }
 
     /// <summary>
+    /// Update an existing product
+    /// </summary>
+    [HttpPut("product/{id}")]
+    [Authorize(Roles = "admin,carrier")]
+    public async Task<ActionResult<ProductDetails>> UpdateProduct(string id, [FromBody] ProductDetails product)
+    {
+        try
+        {
+            var result = await _canvasService.UpdateProductAsync(id, product);
+            return Ok(result);
+        }
+        catch (KeyNotFoundException)
+        {
+            return NotFound($"Product {id} not found");
+        }
+    }
+
+    /// <summary>
+    /// Delete a product (admin only)
+    /// </summary>
+    [HttpDelete("product/{id}")]
+    [Authorize(Roles = "admin,carrier")]
+    public async Task<ActionResult> DeleteProduct(string id)
+    {
+        try
+        {
+            await _canvasService.DeleteProductAsync(id);
+            return Ok(new { message = "Product deleted successfully" });
+        }
+        catch (KeyNotFoundException)
+        {
+            return NotFound($"Product {id} not found");
+        }
+    }
+
+    /// <summary>
     /// Fetch rule details by id
     /// </summary>
     [HttpGet("rule/{id}")]

@@ -14,6 +14,8 @@ public interface ICanvasService
     Task<ProductDetails> GetProductAsync(string id);
     Task<ProductsResponse> GetProductsAsync(string? carrier, int page, int pageSize);
     Task<ProductDetails> CreateProductAsync(ProductDetails product);
+    Task<ProductDetails> UpdateProductAsync(string id, ProductDetails product);
+    Task DeleteProductAsync(string id);
     Task<RuleDetails> GetRuleAsync(string id);
     Task<RulesResponse> GetRulesAsync(int page, int pageSize, string? sortBy);
     Task<RuleDetails> CreateRuleAsync(RuleDetails rule);
@@ -256,6 +258,35 @@ public class CanvasService : ICanvasService
         await _context.SaveChangesAsync();
         
         return new ProductDetails(dbProduct.Id, dbProduct.Name, product.Description, product.ProductType, dbProduct.Carrier, dbProduct.PerOccurrence, dbProduct.Aggregate, dbProduct.MinAnnualRevenue, dbProduct.MaxAnnualRevenue, dbProduct.NaicsAllowed, dbProduct.CreatedAt);
+    }
+
+    public async Task<ProductDetails> UpdateProductAsync(string id, ProductDetails product)
+    {
+        var existingProduct = await _context.Products.FirstOrDefaultAsync(p => p.Id == id);
+        if (existingProduct == null)
+            throw new KeyNotFoundException($"Product {id} not found");
+        
+        existingProduct.Name = product.Name;
+        existingProduct.Carrier = product.Carrier;
+        existingProduct.PerOccurrence = product.PerOccurrence;
+        existingProduct.Aggregate = product.Aggregate;
+        existingProduct.MinAnnualRevenue = product.MinAnnualRevenue;
+        existingProduct.MaxAnnualRevenue = product.MaxAnnualRevenue;
+        existingProduct.NaicsAllowed = product.NaicsAllowed;
+        
+        await _context.SaveChangesAsync();
+        
+        return new ProductDetails(existingProduct.Id, existingProduct.Name, product.Description, product.ProductType, existingProduct.Carrier, existingProduct.PerOccurrence, existingProduct.Aggregate, existingProduct.MinAnnualRevenue, existingProduct.MaxAnnualRevenue, existingProduct.NaicsAllowed, existingProduct.CreatedAt);
+    }
+
+    public async Task DeleteProductAsync(string id)
+    {
+        var existingProduct = await _context.Products.FirstOrDefaultAsync(p => p.Id == id);
+        if (existingProduct == null)
+            throw new KeyNotFoundException($"Product {id} not found");
+        
+        _context.Products.Remove(existingProduct);
+        await _context.SaveChangesAsync();
     }
 
     public async Task<RuleDetails> GetRuleAsync(string id)

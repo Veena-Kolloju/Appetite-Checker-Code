@@ -31,6 +31,7 @@ const Dashboard = () => {
   const [sidebarOpen, setSidebarOpen] = useState(true);
   const [showCarrierForm, setShowCarrierForm] = useState(false);
   const [showProductForm, setShowProductForm] = useState(false);
+  const [editingProduct, setEditingProduct] = useState(null);
   const [showAddRule, setShowAddRule] = useState(false);
   const [showUserForm, setShowUserForm] = useState(false);
   const navigate = useNavigate();
@@ -157,16 +158,24 @@ const Dashboard = () => {
                 <CarrierList onCreateCarrier={() => setShowCarrierForm(true)} />
               )
             ) : activeSection === 'product-library' ? (
-              showProductForm ? (
+              showProductForm || editingProduct ? (
                 <ProductForm 
-                  onBack={() => setShowProductForm(false)}
+                  editProduct={editingProduct}
+                  onBack={() => {
+                    setShowProductForm(false);
+                    setEditingProduct(null);
+                  }}
                   onSuccess={() => {
                     setShowProductForm(false);
-                    alert('Product created successfully!');
+                    setEditingProduct(null);
+                    alert(editingProduct ? 'Product updated successfully!' : 'Product created successfully!');
                   }}
                 />
               ) : (
-                <ProductList onCreateProduct={() => setShowProductForm(true)} />
+                <ProductList 
+                  onCreateProduct={() => setShowProductForm(true)}
+                  onEditProduct={(product) => setEditingProduct(product)}
+                />
               )
             ) : activeSection === 'rule-library' ? (
               <RuleLibrary />

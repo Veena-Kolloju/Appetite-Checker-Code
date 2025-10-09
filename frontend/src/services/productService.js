@@ -53,5 +53,36 @@ export const productService = {
       throw new Error(`Failed to create product: ${response.status}`);
     }
     return await response.json();
+  },
+
+  async updateProduct(id, data) {
+    const response = await fetch(`${API_CONFIG.BASE_URL}/canvas/product/${id}`, {
+      method: 'PUT',
+      headers: getAuthHeaders(),
+      body: JSON.stringify(data)
+    });
+    
+    if (!response.ok) {
+      if (response.status === 401) throw new Error('Please login again');
+      if (response.status === 403) throw new Error('Access denied');
+      if (response.status === 404) throw new Error('Product not found');
+      throw new Error('Failed to update product');
+    }
+    return await response.json();
+  },
+
+  async deleteProduct(id) {
+    const response = await fetch(`${API_CONFIG.BASE_URL}/canvas/product/${id}`, {
+      method: 'DELETE',
+      headers: getAuthHeaders()
+    });
+    
+    if (!response.ok) {
+      if (response.status === 401) throw new Error('Please login again');
+      if (response.status === 403) throw new Error('Access denied');
+      if (response.status === 404) throw new Error('Product not found');
+      throw new Error('Failed to delete product');
+    }
+    return true;
   }
 };
