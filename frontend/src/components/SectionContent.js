@@ -22,6 +22,7 @@ const SectionContent = ({ section, currentUser }) => {
   const [formData, setFormData] = useState({});
   const [uploadFile, setUploadFile] = useState(null);
   const [showUploadPreview, setShowUploadPreview] = useState(false);
+  const [isEditing, setIsEditing] = useState(false);
 
   const handleInputChange = (e) => {
     const { name, value } = e.target;
@@ -703,6 +704,29 @@ const SectionContent = ({ section, currentUser }) => {
   }
 
   if (section === 'profile') {
+    const profileData = {
+      name: formData.name || currentUser?.username || '',
+      email: formData.email || (currentUser?.carrierName ? `${currentUser.username}@${currentUser.carrierName.toLowerCase().replace(/\s+/g, '')}.com` : `${currentUser?.username || 'user'}@example.com`),
+      role: formData.role || 'Carrier Admin',
+      phone: formData.phone || 'Not provided'
+    };
+
+    const handleEdit = () => {
+      setFormData(profileData);
+      setIsEditing(true);
+    };
+
+    const handleSave = (e) => {
+      e.preventDefault();
+      setIsEditing(false);
+      alert('Profile updated successfully!');
+    };
+
+    const handleCancel = () => {
+      setFormData({});
+      setIsEditing(false);
+    };
+
     return (
       <div className="space-y-8">
         <motion.div
@@ -715,71 +739,113 @@ const SectionContent = ({ section, currentUser }) => {
               <User className="w-8 h-8" />
             </div>
             <div>
-              <h1 className="text-4xl font-bold mb-2">Profile</h1>
+              <h1 className="text-4xl font-bold mb-2">My Profile</h1>
               <p className="text-xl opacity-90">Manage your account settings and preferences</p>
             </div>
           </div>
         </motion.div>
 
         <div className="bg-white rounded-2xl p-8 shadow-lg border border-gray-100 max-w-2xl">
-          <form onSubmit={handleSubmit} className="space-y-6">
-            <div>
-              <label className="block text-sm font-semibold text-gray-700 mb-2">Name <span className="text-red-500">*</span></label>
-              <input
-                type="text"
-                name="name"
-                value={formData.name || currentUser?.username || ''}
-                onChange={handleInputChange}
-                required
-                className="w-full px-4 py-3 bg-white border border-gray-200 rounded-xl focus:ring-2 focus:ring-warning-500 focus:border-transparent transition-all duration-200"
-                placeholder="Enter your name"
-              />
+          {!isEditing ? (
+            <div className="space-y-6">
+              <div>
+                <label className="block text-sm font-medium text-gray-500 mb-2">Name</label>
+                <span className="text-lg font-semibold text-gray-900">{profileData.name}</span>
+              </div>
+              <div>
+                <label className="block text-sm font-medium text-gray-500 mb-2">Email</label>
+                <span className="text-gray-700">{profileData.email}</span>
+              </div>
+              <div>
+                <label className="block text-sm font-medium text-gray-500 mb-2">Role</label>
+                <span className="text-gray-700">{profileData.role}</span>
+              </div>
+              <div>
+                <label className="block text-sm font-medium text-gray-500 mb-2">Phone</label>
+                <span className="text-gray-700">{profileData.phone}</span>
+              </div>
+              <div className="flex justify-end">
+                <motion.button
+                  whileHover={{ scale: 1.02 }}
+                  whileTap={{ scale: 0.98 }}
+                  onClick={handleEdit}
+                  className="flex items-center px-6 py-3 bg-gradient-to-r from-warning-600 to-danger-500 text-white rounded-xl font-semibold shadow-lg hover:shadow-xl transition-all duration-200"
+                >
+                  <Edit className="w-4 h-4 mr-2" />
+                  Edit Profile
+                </motion.button>
+              </div>
             </div>
-            <div>
-              <label className="block text-sm font-semibold text-gray-700 mb-2">Email <span className="text-red-500">*</span></label>
-              <input
-                type="email"
-                name="email"
-                value={formData.email || (currentUser?.carrierName ? `${currentUser.username}@${currentUser.carrierName.toLowerCase().replace(/\s+/g, '')}.com` : `${currentUser?.username || 'user'}@example.com`)}
-                onChange={handleInputChange}
-                required
-                className="w-full px-4 py-3 bg-white border border-gray-200 rounded-xl focus:ring-2 focus:ring-warning-500 focus:border-transparent transition-all duration-200"
-                placeholder="Enter your email"
-              />
-            </div>
-            <div>
-              <label className="block text-sm font-semibold text-gray-700 mb-2">Role</label>
-              <input
-                type="text"
-                name="role"
-                value={formData.role || 'Carrier Admin'}
-                onChange={handleInputChange}
-                className="w-full px-4 py-3 bg-white border border-gray-200 rounded-xl focus:ring-2 focus:ring-warning-500 focus:border-transparent transition-all duration-200"
-                placeholder="Enter your role"
-              />
-            </div>
-            <div>
-              <label className="block text-sm font-semibold text-gray-700 mb-2">Phone</label>
-              <input
-                type="tel"
-                name="phone"
-                value={formData.phone || ''}
-                onChange={handleInputChange}
-                className="w-full px-4 py-3 bg-white border border-gray-200 rounded-xl focus:ring-2 focus:ring-warning-500 focus:border-transparent transition-all duration-200"
-                placeholder="Enter phone number"
-              />
-            </div>
-            <div className="flex justify-end">
-              <motion.button
-                whileHover={{ scale: 1.02 }}
-                whileTap={{ scale: 0.98 }}
-                type="submit"
-                className="px-6 py-3 bg-gradient-to-r from-warning-600 to-danger-500 text-white rounded-xl font-semibold shadow-lg hover:shadow-xl transition-all duration-200"
-              >
-                Save Changes
-              </motion.button>
-            </div>
-          </form>
+          ) : (
+            <form onSubmit={handleSave} className="space-y-6">
+              <div>
+                <label className="block text-sm font-semibold text-gray-700 mb-2">Name <span className="text-red-500">*</span></label>
+                <input
+                  type="text"
+                  name="name"
+                  value={formData.name || ''}
+                  onChange={handleInputChange}
+                  required
+                  className="w-full px-4 py-3 bg-white border border-gray-200 rounded-xl focus:ring-2 focus:ring-warning-500 focus:border-transparent transition-all duration-200"
+                  placeholder="Enter your name"
+                />
+              </div>
+              <div>
+                <label className="block text-sm font-semibold text-gray-700 mb-2">Email <span className="text-red-500">*</span></label>
+                <input
+                  type="email"
+                  name="email"
+                  value={formData.email || ''}
+                  onChange={handleInputChange}
+                  required
+                  className="w-full px-4 py-3 bg-white border border-gray-200 rounded-xl focus:ring-2 focus:ring-warning-500 focus:border-transparent transition-all duration-200"
+                  placeholder="Enter your email"
+                />
+              </div>
+              <div>
+                <label className="block text-sm font-semibold text-gray-700 mb-2">Role</label>
+                <input
+                  type="text"
+                  name="role"
+                  value={formData.role || ''}
+                  onChange={handleInputChange}
+                  className="w-full px-4 py-3 bg-white border border-gray-200 rounded-xl focus:ring-2 focus:ring-warning-500 focus:border-transparent transition-all duration-200"
+                  placeholder="Enter your role"
+                />
+              </div>
+              <div>
+                <label className="block text-sm font-semibold text-gray-700 mb-2">Phone</label>
+                <input
+                  type="tel"
+                  name="phone"
+                  value={formData.phone || ''}
+                  onChange={handleInputChange}
+                  className="w-full px-4 py-3 bg-white border border-gray-200 rounded-xl focus:ring-2 focus:ring-warning-500 focus:border-transparent transition-all duration-200"
+                  placeholder="Enter phone number"
+                />
+              </div>
+              <div className="flex justify-end gap-3">
+                <motion.button
+                  whileHover={{ scale: 1.02 }}
+                  whileTap={{ scale: 0.98 }}
+                  type="button"
+                  onClick={handleCancel}
+                  className="px-6 py-3 border border-gray-300 text-gray-700 rounded-xl hover:bg-gray-50 transition-all duration-200 font-medium"
+                >
+                  Cancel
+                </motion.button>
+                <motion.button
+                  whileHover={{ scale: 1.02 }}
+                  whileTap={{ scale: 0.98 }}
+                  type="submit"
+                  className="flex items-center px-6 py-3 bg-gradient-to-r from-warning-600 to-danger-500 text-white rounded-xl font-semibold shadow-lg hover:shadow-xl transition-all duration-200"
+                >
+                  <Save className="w-4 h-4 mr-2" />
+                  Save Changes
+                </motion.button>
+              </div>
+            </form>
+          )}
         </div>
       </div>
     );
