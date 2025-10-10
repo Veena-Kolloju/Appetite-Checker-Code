@@ -1,9 +1,12 @@
 import React, { useState, useEffect } from 'react';
 import { motion } from 'framer-motion';
-import { BookOpen, Eye, Edit, Save, X, Trash2 } from 'lucide-react';
+import { BookOpen, Eye, Edit, Save, X, Trash2, Plus, Upload } from 'lucide-react';
 import { ruleService } from '../services/ruleService';
+import AddRule from './AddRule';
+import UploadRules from './UploadRules';
 
 const RuleLibrary = () => {
+  const [activeTab, setActiveTab] = useState('view');
   const [rules, setRules] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState('');
@@ -89,24 +92,72 @@ const RuleLibrary = () => {
   if (loading) return <div className="flex justify-center p-8"><div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary-500"></div></div>;
   if (error) return <div className="text-red-500 p-4 text-center">{error}</div>;
 
+  const handleAddRuleSuccess = () => {
+    setActiveTab('view');
+    loadRules();
+    alert('Rule created successfully!');
+  };
+
   return (
     <motion.div
       initial={{ opacity: 0, y: 20 }}
       animate={{ opacity: 1, y: 0 }}
       className="p-6"
     >
-      <div className="flex items-center mb-6">
-        <BookOpen className="w-6 h-6 text-primary-500 mr-2" />
-        <h2 className="text-2xl font-bold">Rule Library</h2>
+      <div className="flex items-center justify-between mb-6">
+        <div className="flex items-center">
+          <BookOpen className="w-6 h-6 text-primary-500 mr-2" />
+          <h2 className="text-2xl font-bold">Rule Library</h2>
+        </div>
+        
+        {/* Tab Navigation */}
+        <div className="flex bg-gray-100 rounded-lg p-1">
+          <button
+            onClick={() => setActiveTab('view')}
+            className={`px-4 py-2 rounded-md text-sm font-medium transition-all ${
+              activeTab === 'view'
+                ? 'bg-white text-primary-600 shadow-sm'
+                : 'text-gray-600 hover:text-gray-800'
+            }`}
+          >
+            <BookOpen className="w-4 h-4 inline mr-1" />
+            View Rules
+          </button>
+          <button
+            onClick={() => setActiveTab('add')}
+            className={`px-4 py-2 rounded-md text-sm font-medium transition-all ${
+              activeTab === 'add'
+                ? 'bg-white text-primary-600 shadow-sm'
+                : 'text-gray-600 hover:text-gray-800'
+            }`}
+          >
+            <Plus className="w-4 h-4 inline mr-1" />
+            Add Rule
+          </button>
+          <button
+            onClick={() => setActiveTab('upload')}
+            className={`px-4 py-2 rounded-md text-sm font-medium transition-all ${
+              activeTab === 'upload'
+                ? 'bg-white text-primary-600 shadow-sm'
+                : 'text-gray-600 hover:text-gray-800'
+            }`}
+          >
+            <Upload className="w-4 h-4 inline mr-1" />
+            Upload Rules
+          </button>
+        </div>
       </div>
 
-      <div className="grid gap-4">
-        {rules.map((rule) => (
-          <motion.div
-            key={rule.ruleId}
-            whileHover={{ scale: 1.01 }}
-            className="bg-white rounded-lg shadow-md p-4 border border-gray-200"
-          >
+      {/* Tab Content */}
+      {activeTab === 'view' && (
+        <>
+          <div className="grid gap-4">
+            {rules.map((rule) => (
+              <motion.div
+                key={rule.ruleId}
+                whileHover={{ scale: 1.01 }}
+                className="bg-white rounded-lg shadow-md p-4 border border-gray-200"
+              >
             {editingRule === rule.ruleId ? (
               <div className="space-y-4">
                 <div>
@@ -208,19 +259,32 @@ const RuleLibrary = () => {
                   )}
                 </div>
               </div>
-            )}
-          </motion.div>
-        ))}
-      </div>
-
-      {rules.length === 0 && (
-        <div className="text-center py-8 text-gray-500">
-          No rules found
+              )}
+            </motion.div>
+          ))}
         </div>
+
+        {rules.length === 0 && (
+          <div className="text-center py-8 text-gray-500">
+            No rules found
+          </div>
+        )}
+        </>
+      )}
+
+      {activeTab === 'add' && (
+        <AddRule 
+          onBack={() => setActiveTab('view')}
+          onSuccess={handleAddRuleSuccess}
+        />
+      )}
+
+      {activeTab === 'upload' && (
+        <UploadRules />
       )}
 
       {/* Rule Details Modal */}
-      {viewingRule && (
+      {viewingRule && activeTab === 'view' && (
         <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
           <div className="bg-white rounded-lg p-6 max-w-2xl w-full mx-4 max-h-96 overflow-y-auto">
             <div className="flex justify-between items-center mb-4">

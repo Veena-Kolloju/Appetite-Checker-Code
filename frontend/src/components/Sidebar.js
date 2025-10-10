@@ -5,8 +5,7 @@ import {
   UserPlus, 
   Package, 
   BookOpen, 
-  Plus, 
-  Upload, 
+ 
   BarChart3, 
   User, 
   Settings,
@@ -35,8 +34,6 @@ const Sidebar = ({ activeSection, setActiveSection }) => {
       { id: 'product-library', label: 'Product Library', icon: Package, color: 'from-purple-500 to-purple-600' },
       { id: 'rule-library', label: 'Rule Library', icon: BookOpen, color: 'from-accent-500 to-accent-600' },
       { id: 'users', label: 'Users', icon: User, color: 'from-indigo-500 to-indigo-600', adminOnly: true },
-      { id: 'add-rule', label: 'Add Rule', icon: Plus, color: 'from-danger-500 to-danger-600' },
-      { id: 'upload-rules', label: 'Upload Rules', icon: Upload, color: 'from-primary-600 to-accent-500' },
       { id: 'analytics', label: 'Analytics', icon: BarChart3, color: 'from-success-600 to-primary-500' },
       { id: 'profile', label: userRole === 'carrier' ? 'My Profile' : 'Profile', icon: User, color: 'from-warning-600 to-danger-500' },
       { id: 'rule-configuration', label: 'Rule Configuration', icon: Settings, color: 'from-accent-600 to-primary-600' },

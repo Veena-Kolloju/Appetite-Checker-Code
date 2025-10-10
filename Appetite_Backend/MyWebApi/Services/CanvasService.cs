@@ -395,7 +395,7 @@ public class CanvasService : ICanvasService
         
         // Rules by priority (real data)
         var rulesByPriority = await _context.Rules
-            .GroupBy(r => r.Priority ?? "medium")
+            .GroupBy(r => (r.Priority ?? "medium").ToLower())
             .ToDictionaryAsync(g => g.Key, g => g.Count());
         
         // Ensure we have data even if no rules exist
