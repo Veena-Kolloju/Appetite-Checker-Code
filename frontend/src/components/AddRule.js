@@ -14,8 +14,8 @@ const AddRule = ({ onBack, onSuccess }) => {
     product: '',
     restrictions: '',
     priority: 'medium',
-    outcome: 'accept',
-    status: 'Draft',
+    outcome: 'eligible',
+    status: 'Active',
     minRevenue: '',
     maxRevenue: '',
     minYearsInBusiness: '',
@@ -323,9 +323,9 @@ const AddRule = ({ onBack, onSuccess }) => {
                     required
                     className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-transparent"
                   >
-                    <option value="accept">Accept</option>
-                    <option value="reject">Reject</option>
-                    <option value="refer">Refer</option>
+                    <option value="eligible">Eligible</option>
+                    <option value="declined">Declined</option>
+                    <option value="restricted">Restricted</option>
                   </select>
                 </div>
                 <div>
