@@ -304,6 +304,8 @@ const RuleLibrary = () => {
               <div><strong>Outcome:</strong> {viewingRule.outcome || 'N/A'}</div>
               <div><strong>Carrier:</strong> {viewingRule.carrier || 'N/A'}</div>
               <div><strong>Product:</strong> {viewingRule.product || 'N/A'}</div>
+              <div><strong>Prior Claims Allowed:</strong> {viewingRule.priorClaimsAllowed || 'N/A'}</div>
+              <div><strong>Prior Claims Threshold:</strong> {viewingRule.priorClaimsThreshold || 'N/A'}</div>
               <div><strong>Created:</strong> {new Date(viewingRule.createdAt).toLocaleDateString()}</div>
             </div>
           </div>

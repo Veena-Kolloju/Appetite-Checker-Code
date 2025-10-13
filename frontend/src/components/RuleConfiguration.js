@@ -134,6 +134,14 @@ const RuleConfiguration = () => {
                     <span className="text-xs font-semibold text-green-600 uppercase tracking-wide">Product</span>
                     <p className="font-bold text-gray-800">{rule.product || 'N/A'}</p>
                   </div>
+                  <div className="bg-white rounded-lg p-3 border border-green-200">
+                    <span className="text-xs font-semibold text-green-600 uppercase tracking-wide">Prior Claims Allowed</span>
+                    <p className="font-bold text-gray-800">{rule.priorClaimsAllowed || 'N/A'}</p>
+                  </div>
+                  <div className="bg-white rounded-lg p-3 border border-green-200">
+                    <span className="text-xs font-semibold text-green-600 uppercase tracking-wide">Prior Claims Threshold</span>
+                    <p className="font-bold text-gray-800">{rule.priorClaimsThreshold || 'N/A'}</p>
+                  </div>
                   <div className="bg-white rounded-lg p-3 border border-green-200 md:col-span-2">
                     <span className="text-xs font-semibold text-green-600 uppercase tracking-wide">Description</span>
                     <p className="font-bold text-gray-800">{rule.description || 'N/A'}</p>

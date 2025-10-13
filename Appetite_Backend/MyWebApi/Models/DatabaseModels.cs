@@ -60,6 +60,7 @@ public class DbRule
     public int? MinYearsInBusiness { get; set; }
     public int? MaxYearsInBusiness { get; set; }
     public int? PriorClaimsAllowed { get; set; }
+    public int? PriorClaimsThreshold { get; set; }
     public string? Conditions { get; set; }
     public string? ContactEmail { get; set; }
     public string? CreatedBy { get; set; }

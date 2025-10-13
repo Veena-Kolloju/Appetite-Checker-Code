@@ -23,14 +23,16 @@ const Sidebar = ({ activeSection, setActiveSection }) => {
     const user = localStorage.getItem('user');
     if (user) {
       const userData = JSON.parse(user);
-      setUserRole(userData.roles?.[0] || 'user');
+      // Handle both array and string formats for roles
+      const roles = Array.isArray(userData.roles) ? userData.roles : (userData.roles ? userData.roles.split(',') : []);
+      setUserRole(roles[0] || 'user');
     }
   }, []);
 
   const getMenuItems = () => {
     const baseItems = [
       { id: 'dashboard', label: 'Dashboard', icon: LayoutDashboard, color: 'from-primary-500 to-primary-600' },
-      { id: 'carriers', label: 'Carriers', icon: Users, color: 'from-blue-500 to-blue-600', adminOnly: true },
+      { id: 'carriers', label: 'Carriers', icon: Users, color: 'from-blue-500 to-blue-600' },
       { id: 'product-library', label: 'Product Library', icon: Package, color: 'from-purple-500 to-purple-600' },
       { id: 'rule-library', label: 'Rule Library', icon: BookOpen, color: 'from-accent-500 to-accent-600' },
       { id: 'users', label: 'Users', icon: User, color: 'from-indigo-500 to-indigo-600', adminOnly: true },
