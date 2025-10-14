@@ -24,6 +24,7 @@ public class AppDbContext : DbContext
             entity.Property(e => e.Email).HasMaxLength(255).IsRequired();
             entity.Property(e => e.PasswordHash).HasMaxLength(255).IsRequired();
             entity.Property(e => e.Roles).HasMaxLength(200);
+            entity.Property(e => e.CarrierID).HasMaxLength(450);
             entity.Property(e => e.OrganizationId).HasMaxLength(450);
             entity.Property(e => e.OrganizationName).HasMaxLength(200);
             entity.Property(e => e.AuthProvider).HasMaxLength(50);
@@ -32,9 +33,16 @@ public class AppDbContext : DbContext
             entity.Property(e => e.IsActive).HasDefaultValue(true);
             entity.Property(e => e.FailedLoginAttempts).HasDefaultValue(0);
             
+            // Foreign key relationship
+            entity.HasOne(e => e.Carrier)
+                  .WithMany(c => c.Users)
+                  .HasForeignKey(e => e.CarrierID)
+                  .OnDelete(DeleteBehavior.SetNull);
+            
             // Indexes
             entity.HasIndex(e => e.Email).IsUnique().HasDatabaseName("IDX_Users_Email");
             entity.HasIndex(e => e.PasswordResetToken).HasDatabaseName("IDX_Users_ResetToken");
+            entity.HasIndex(e => e.CarrierID).HasDatabaseName("IDX_Users_CarrierID");
         });
 
         modelBuilder.Entity<DbCarrier>(entity =>
@@ -73,6 +81,25 @@ public class AppDbContext : DbContext
             entity.HasIndex(e => e.PrimaryContactEmail).HasDatabaseName("IDX_Carriers_PrimaryContactEmail");
         });
 
+        modelBuilder.Entity<DbProduct>(entity =>
+        {
+            entity.HasKey(e => e.Id);
+            entity.Property(e => e.Id).HasMaxLength(450).IsRequired();
+            entity.Property(e => e.Name).HasMaxLength(200).IsRequired();
+            entity.Property(e => e.Carrier).HasMaxLength(200);
+            entity.Property(e => e.CarrierID).HasMaxLength(450);
+            entity.Property(e => e.CreatedAt).HasDefaultValueSql("SYSUTCDATETIME()");
+            
+            // Foreign key relationship
+            entity.HasOne(e => e.CarrierEntity)
+                  .WithMany(c => c.Products)
+                  .HasForeignKey(e => e.CarrierID)
+                  .OnDelete(DeleteBehavior.SetNull);
+            
+            // Indexes
+            entity.HasIndex(e => e.CarrierID).HasDatabaseName("IDX_Products_CarrierID");
+        });
+
         modelBuilder.Entity<DbRule>(entity =>
         {
             entity.HasKey(e => e.RuleId);
@@ -81,6 +108,8 @@ public class AppDbContext : DbContext
             entity.Property(e => e.BusinessType).HasMaxLength(100);
             entity.Property(e => e.Carrier).HasMaxLength(200);
             entity.Property(e => e.Product).HasMaxLength(200);
+            entity.Property(e => e.CarrierID).HasMaxLength(450);
+            entity.Property(e => e.ProductID).HasMaxLength(450);
             entity.Property(e => e.Priority).HasMaxLength(50);
             entity.Property(e => e.Outcome).HasMaxLength(50);
             entity.Property(e => e.RuleVersion).HasMaxLength(50);
@@ -91,10 +120,23 @@ public class AppDbContext : DbContext
             entity.Property(e => e.MaxRevenue).HasPrecision(18, 2);
             entity.Property(e => e.CreatedAt).HasDefaultValueSql("SYSUTCDATETIME()");
             
+            // Foreign key relationships
+            entity.HasOne(e => e.CarrierEntity)
+                  .WithMany(c => c.Rules)
+                  .HasForeignKey(e => e.CarrierID)
+                  .OnDelete(DeleteBehavior.SetNull);
+                  
+            entity.HasOne(e => e.ProductEntity)
+                  .WithMany(p => p.Rules)
+                  .HasForeignKey(e => e.ProductID)
+                  .OnDelete(DeleteBehavior.SetNull);
+            
             // Indexes
             entity.HasIndex(e => new { e.Carrier, e.Product }).HasDatabaseName("IDX_Rules_Carrier_Product");
             entity.HasIndex(e => e.NaicsCodes).HasDatabaseName("IDX_Rules_Naics");
             entity.HasIndex(e => new { e.Status, e.EffectiveFrom, e.EffectiveTo }).HasDatabaseName("IDX_Rules_Status_Eff");
+            entity.HasIndex(e => e.CarrierID).HasDatabaseName("IDX_Rules_CarrierID");
+            entity.HasIndex(e => e.ProductID).HasDatabaseName("IDX_Rules_ProductID");
         });
     }
 }

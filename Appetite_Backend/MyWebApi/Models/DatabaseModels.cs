@@ -1,4 +1,5 @@
 using System.ComponentModel.DataAnnotations;
+using System.ComponentModel.DataAnnotations.Schema;
 
 namespace MyWebApi.Models;
 
@@ -11,6 +12,7 @@ public class DbUser
     public string Email { get; set; } = string.Empty;
     public string PasswordHash { get; set; } = string.Empty;
     public string? Roles { get; set; }
+    public string? CarrierID { get; set; } // FK to Carrier, null if Admin
     public string? OrganizationId { get; set; }
     public string? OrganizationName { get; set; }
     public DateTime CreatedAt { get; set; }
@@ -21,6 +23,10 @@ public class DbUser
     public DateTime? PasswordResetExpiry { get; set; }
     public int FailedLoginAttempts { get; set; } = 0;
     public DateTime? LockoutEnd { get; set; }
+    
+    // Navigation property
+    [ForeignKey("CarrierID")]
+    public virtual DbCarrier? Carrier { get; set; }
 }
 
 public class DbProduct
@@ -28,13 +34,21 @@ public class DbProduct
     [Key]
     public string Id { get; set; } = string.Empty;
     public string Name { get; set; } = string.Empty;
-    public string Carrier { get; set; } = string.Empty;
+    public string Carrier { get; set; } = string.Empty; // Keep as string for now
+    public string? CarrierID { get; set; } // Add FK to Carrier
     public int PerOccurrence { get; set; }
     public int Aggregate { get; set; }
     public int MinAnnualRevenue { get; set; }
     public int MaxAnnualRevenue { get; set; }
     public string NaicsAllowed { get; set; } = string.Empty;
     public DateTime CreatedAt { get; set; }
+    
+    // Navigation property
+    [ForeignKey("CarrierID")]
+    public virtual DbCarrier? CarrierEntity { get; set; }
+    
+    // Collection navigation property
+    public virtual ICollection<DbRule> Rules { get; set; } = new List<DbRule>();
 }
 
 public class DbRule
@@ -46,8 +60,10 @@ public class DbRule
     public string? BusinessType { get; set; }
     public string? NaicsCodes { get; set; }
     public string? States { get; set; }
-    public string? Carrier { get; set; }
-    public string? Product { get; set; }
+    public string? Carrier { get; set; } // Keep as string for now
+    public string? Product { get; set; } // Keep as string for now
+    public string? CarrierID { get; set; } // Add FK to Carrier
+    public string? ProductID { get; set; } // Add FK to Product
     public string? Restrictions { get; set; }
     public string? Priority { get; set; }
     public string? Outcome { get; set; }
@@ -67,6 +83,13 @@ public class DbRule
     public DateTime CreatedAt { get; set; }
     public DateTime? UpdatedAt { get; set; }
     public string? AdditionalJson { get; set; }
+    
+    // Navigation properties
+    [ForeignKey("CarrierID")]
+    public virtual DbCarrier? CarrierEntity { get; set; }
+    
+    [ForeignKey("ProductID")]
+    public virtual DbProduct? ProductEntity { get; set; }
 }
 
 public class DbEvent
@@ -116,6 +139,11 @@ public class DbCarrier
     public DateTime CreatedAt { get; set; }
     public DateTime? UpdatedAt { get; set; }
     public string? AdditionalJson { get; set; }
+    
+    // Collection navigation properties
+    public virtual ICollection<DbUser> Users { get; set; } = new List<DbUser>();
+    public virtual ICollection<DbProduct> Products { get; set; } = new List<DbProduct>();
+    public virtual ICollection<DbRule> Rules { get; set; } = new List<DbRule>();
 }
 
 public class DbSubmission
