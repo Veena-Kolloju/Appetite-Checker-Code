@@ -4,6 +4,19 @@ using System.ComponentModel.DataAnnotations.Schema;
 namespace MyWebApi.Models;
 
 // Database entity models with parameterless constructors
+public class DbRole
+{
+    [Key]
+    public string RoleId { get; set; } = string.Empty;
+    public string RoleName { get; set; } = string.Empty;
+    public string? Description { get; set; }
+    public DateTime CreatedAt { get; set; }
+    public DateTime? UpdatedAt { get; set; }
+    
+    // Collection navigation property
+    public virtual ICollection<DbUser> Users { get; set; } = new List<DbUser>();
+}
+
 public class DbUser
 {
     [Key]
@@ -11,7 +24,8 @@ public class DbUser
     public string Name { get; set; } = string.Empty;
     public string Email { get; set; } = string.Empty;
     public string PasswordHash { get; set; } = string.Empty;
-    public string? Roles { get; set; }
+    public string? Roles { get; set; } // Keep for backward compatibility
+    public string? RoleId { get; set; } // FK to Role
     public string? CarrierID { get; set; } // FK to Carrier, null if Admin
     public string? OrganizationId { get; set; }
     public string? OrganizationName { get; set; }
@@ -24,7 +38,10 @@ public class DbUser
     public int FailedLoginAttempts { get; set; } = 0;
     public DateTime? LockoutEnd { get; set; }
     
-    // Navigation property
+    // Navigation properties
+    [ForeignKey("RoleId")]
+    public virtual DbRole? Role { get; set; }
+    
     [ForeignKey("CarrierID")]
     public virtual DbCarrier? Carrier { get; set; }
 }

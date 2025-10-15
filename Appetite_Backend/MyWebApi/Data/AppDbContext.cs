@@ -8,6 +8,7 @@ public class AppDbContext : DbContext
     public AppDbContext(DbContextOptions<AppDbContext> options) : base(options) { }
 
     public DbSet<DbUser> Users { get; set; }
+    public DbSet<DbRole> Roles { get; set; }
     public DbSet<DbProduct> Products { get; set; }
     public DbSet<DbRule> Rules { get; set; }
     public DbSet<DbCarrier> Carriers { get; set; }
@@ -16,6 +17,18 @@ public class AppDbContext : DbContext
 
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
+        modelBuilder.Entity<DbRole>(entity =>
+        {
+            entity.HasKey(e => e.RoleId);
+            entity.Property(e => e.RoleId).HasMaxLength(450).IsRequired();
+            entity.Property(e => e.RoleName).HasMaxLength(100).IsRequired();
+            entity.Property(e => e.Description).HasMaxLength(500);
+            entity.Property(e => e.CreatedAt).HasDefaultValueSql("SYSUTCDATETIME()");
+            
+            // Indexes
+            entity.HasIndex(e => e.RoleName).IsUnique().HasDatabaseName("IDX_Roles_RoleName");
+        });
+
         modelBuilder.Entity<DbUser>(entity =>
         {
             entity.HasKey(e => e.Id);
@@ -24,6 +37,7 @@ public class AppDbContext : DbContext
             entity.Property(e => e.Email).HasMaxLength(255).IsRequired();
             entity.Property(e => e.PasswordHash).HasMaxLength(255).IsRequired();
             entity.Property(e => e.Roles).HasMaxLength(200);
+            entity.Property(e => e.RoleId).HasMaxLength(450);
             entity.Property(e => e.CarrierID).HasMaxLength(450);
             entity.Property(e => e.OrganizationId).HasMaxLength(450);
             entity.Property(e => e.OrganizationName).HasMaxLength(200);
@@ -33,7 +47,12 @@ public class AppDbContext : DbContext
             entity.Property(e => e.IsActive).HasDefaultValue(true);
             entity.Property(e => e.FailedLoginAttempts).HasDefaultValue(0);
             
-            // Foreign key relationship
+            // Foreign key relationships
+            entity.HasOne(e => e.Role)
+                  .WithMany(r => r.Users)
+                  .HasForeignKey(e => e.RoleId)
+                  .OnDelete(DeleteBehavior.SetNull);
+                  
             entity.HasOne(e => e.Carrier)
                   .WithMany(c => c.Users)
                   .HasForeignKey(e => e.CarrierID)
@@ -42,6 +61,7 @@ public class AppDbContext : DbContext
             // Indexes
             entity.HasIndex(e => e.Email).IsUnique().HasDatabaseName("IDX_Users_Email");
             entity.HasIndex(e => e.PasswordResetToken).HasDatabaseName("IDX_Users_ResetToken");
+            entity.HasIndex(e => e.RoleId).HasDatabaseName("IDX_Users_RoleId");
             entity.HasIndex(e => e.CarrierID).HasDatabaseName("IDX_Users_CarrierID");
         });
 
