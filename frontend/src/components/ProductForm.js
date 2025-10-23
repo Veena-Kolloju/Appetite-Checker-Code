@@ -7,11 +7,35 @@ const ProductForm = ({ onBack, onSuccess, editProduct = null }) => {
   const [formData, setFormData] = useState({
     name: '',
     description: '',
-    productType: '',
+    productTypeId: '',
     naicsAllowed: '',
     carrier: ''
   });
   const [currentUser, setCurrentUser] = useState(null);
+  const [productTypes, setProductTypes] = useState([]);
+
+  // Fetch product types on component mount
+  useEffect(() => {
+    const fetchProductTypes = async () => {
+      try {
+        const types = await productService.getProductTypes();
+        setProductTypes(types);
+      } catch (error) {
+        console.error('Failed to fetch product types:', error);
+        // Fallback to hardcoded types if API fails
+        setProductTypes([
+          { productTypeId: 1, typeName: 'Auto Insurance' },
+          { productTypeId: 2, typeName: 'Health Insurance' },
+          { productTypeId: 3, typeName: 'Life Insurance' },
+          { productTypeId: 4, typeName: 'Property Insurance' },
+          { productTypeId: 5, typeName: 'Travel Insurance' },
+          { productTypeId: 6, typeName: 'Home Insurance' }
+        ]);
+      }
+    };
+    
+    fetchProductTypes();
+  }, []);
 
   useEffect(() => {
     const user = localStorage.getItem('user');
@@ -24,7 +48,7 @@ const ProductForm = ({ onBack, onSuccess, editProduct = null }) => {
         setFormData({
           name: editProduct.name || '',
           description: editProduct.description || '',
-          productType: editProduct.productType || '',
+          productTypeId: editProduct.productTypeId || '',
           naicsAllowed: editProduct.naicsAllowed || '',
           carrier: editProduct.carrier || ''
         });
@@ -50,7 +74,7 @@ const ProductForm = ({ onBack, onSuccess, editProduct = null }) => {
         id: editProduct?.id || '',
         name: formData.name,
         description: formData.description,
-        productType: formData.productType,
+        productTypeId: formData.productTypeId ? parseInt(formData.productTypeId) : null,
         carrier: formData.carrier,
         naicsAllowed: formData.naicsAllowed,
         perOccurrence: editProduct?.perOccurrence || 1000000,
@@ -154,19 +178,18 @@ const ProductForm = ({ onBack, onSuccess, editProduct = null }) => {
               Product Type *
             </label>
             <select
-              name="productType"
-              value={formData.productType}
+              name="productTypeId"
+              value={formData.productTypeId}
               onChange={handleChange}
               required
               className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-transparent"
             >
               <option value="">Select Product Type</option>
-              <option value="Auto Insurance">Auto Insurance</option>
-              <option value="Health Insurance">Health Insurance</option>
-              <option value="Life Insurance">Life Insurance</option>
-              <option value="Property Insurance">Property Insurance</option>
-              <option value="Travel Insurance">Travel Insurance</option>
-              <option value="Home Insurance">Home Insurance</option>
+              {productTypes.map(type => (
+                <option key={type.productTypeId} value={type.productTypeId}>
+                  {type.typeName}
+                </option>
+              ))}
             </select>
           </div>
 

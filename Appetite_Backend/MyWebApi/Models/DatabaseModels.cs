@@ -46,13 +46,29 @@ public class DbUser
     public virtual DbCarrier? Carrier { get; set; }
 }
 
+public class DbProductType
+{
+    [Key]
+    public int ProductTypeId { get; set; }
+    public string TypeName { get; set; } = string.Empty;
+    public string? Description { get; set; }
+    public bool IsActive { get; set; } = true;
+    public int DisplayOrder { get; set; }
+    public DateTime CreatedAt { get; set; }
+    
+    // Collection navigation property
+    public virtual ICollection<DbProduct> Products { get; set; } = new List<DbProduct>();
+}
+
 public class DbProduct
 {
     [Key]
     public string Id { get; set; } = string.Empty;
     public string Name { get; set; } = string.Empty;
+    public string? Description { get; set; }
     public string Carrier { get; set; } = string.Empty; // Keep as string for now
     public int? CarrierID { get; set; } // Add FK to Carrier
+    public int? ProductTypeId { get; set; } // Add FK to ProductType
     public int PerOccurrence { get; set; }
     public int Aggregate { get; set; }
     public int MinAnnualRevenue { get; set; }
@@ -60,9 +76,12 @@ public class DbProduct
     public string NaicsAllowed { get; set; } = string.Empty;
     public DateTime CreatedAt { get; set; }
     
-    // Navigation property
+    // Navigation properties
     [ForeignKey("CarrierID")]
     public virtual DbCarrier? CarrierEntity { get; set; }
+    
+    [ForeignKey("ProductTypeId")]
+    public virtual DbProductType? ProductType { get; set; }
     
     // Collection navigation property
     public virtual ICollection<DbRule> Rules { get; set; } = new List<DbRule>();

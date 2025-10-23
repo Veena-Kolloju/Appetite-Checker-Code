@@ -24,7 +24,7 @@ const ProductList = ({ onCreateProduct, onEditProduct }) => {
     try {
       setLoading(true);
       const result = await productService.getProducts();
-      setProducts(result.data || []);
+      setProducts(result || []);
       setError('');
     } catch (err) {
       setError(err.message);
@@ -100,10 +100,10 @@ const ProductList = ({ onCreateProduct, onEditProduct }) => {
                 <p className="text-gray-600">{product.description || 'No description available'}</p>
                 <div className="flex gap-2 mt-2">
                   <span className="px-2 py-1 bg-blue-100 text-blue-800 rounded-full text-xs">
-                    {product.productType || 'N/A'}
+                    {product.productType || 'No Type'}
                   </span>
                   <span className="px-2 py-1 bg-green-100 text-green-800 rounded-full text-xs">
-                    {product.carrier}
+                    {product.carrierName || product.carrier}
                   </span>
                 </div>
                 <div className="mt-2 text-sm text-gray-500">
@@ -197,7 +197,7 @@ const ProductList = ({ onCreateProduct, onEditProduct }) => {
               <div><strong>ID:</strong> {viewingProduct.id}</div>
               <div><strong>Name:</strong> {viewingProduct.name}</div>
               <div><strong>Description:</strong> {viewingProduct.description || 'No description available'}</div>
-              <div><strong>Product Type:</strong> {viewingProduct.productType || 'N/A'}</div>
+              <div><strong>Product Type:</strong> {viewingProduct.productType || 'No Type'}</div>
               <div><strong>Carrier:</strong> {viewingProduct.carrier}</div>
               <div><strong>Per Occurrence:</strong> ${viewingProduct.perOccurrence?.toLocaleString() || 'N/A'}</div>
               <div><strong>Aggregate:</strong> ${viewingProduct.aggregate?.toLocaleString() || 'N/A'}</div>

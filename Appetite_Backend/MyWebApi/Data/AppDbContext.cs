@@ -10,6 +10,7 @@ public class AppDbContext : DbContext
     public DbSet<DbUser> Users { get; set; }
     public DbSet<DbRole> Roles { get; set; }
     public DbSet<DbProduct> Products { get; set; }
+    public DbSet<DbProductType> ProductTypes { get; set; }
     public DbSet<DbRule> Rules { get; set; }
     public DbSet<DbCarrier> Carriers { get; set; }
     public DbSet<DbEvent> Events { get; set; }
@@ -101,23 +102,46 @@ public class AppDbContext : DbContext
             entity.HasIndex(e => e.PrimaryContactEmail).HasDatabaseName("IDX_Carriers_PrimaryContactEmail");
         });
 
+        modelBuilder.Entity<DbProductType>(entity =>
+        {
+            entity.HasKey(e => e.ProductTypeId);
+            entity.Property(e => e.ProductTypeId).ValueGeneratedOnAdd();
+            entity.Property(e => e.TypeName).HasMaxLength(100).IsRequired();
+            entity.Property(e => e.Description).HasMaxLength(500);
+            entity.Property(e => e.IsActive).HasDefaultValue(true);
+            entity.Property(e => e.DisplayOrder).HasDefaultValue(0);
+            entity.Property(e => e.CreatedAt).HasDefaultValueSql("SYSUTCDATETIME()");
+            
+            // Indexes
+            entity.HasIndex(e => e.TypeName).IsUnique().HasDatabaseName("IDX_ProductTypes_TypeName");
+            entity.HasIndex(e => e.IsActive).HasDatabaseName("IDX_ProductTypes_IsActive");
+        });
+
         modelBuilder.Entity<DbProduct>(entity =>
         {
             entity.HasKey(e => e.Id);
             entity.Property(e => e.Id).HasMaxLength(450).IsRequired();
             entity.Property(e => e.Name).HasMaxLength(200).IsRequired();
+            entity.Property(e => e.Description).HasMaxLength(1000);
             entity.Property(e => e.Carrier).HasMaxLength(200);
             entity.Property(e => e.CarrierID);
+            entity.Property(e => e.ProductTypeId);
             entity.Property(e => e.CreatedAt).HasDefaultValueSql("SYSUTCDATETIME()");
             
-            // Foreign key relationship
+            // Foreign key relationships
             entity.HasOne(e => e.CarrierEntity)
                   .WithMany(c => c.Products)
                   .HasForeignKey(e => e.CarrierID)
                   .OnDelete(DeleteBehavior.SetNull);
+                  
+            entity.HasOne(e => e.ProductType)
+                  .WithMany(pt => pt.Products)
+                  .HasForeignKey(e => e.ProductTypeId)
+                  .OnDelete(DeleteBehavior.SetNull);
             
             // Indexes
             entity.HasIndex(e => e.CarrierID).HasDatabaseName("IDX_Products_CarrierID");
+            entity.HasIndex(e => e.ProductTypeId).HasDatabaseName("IDX_Products_ProductTypeId");
         });
 
         modelBuilder.Entity<DbRule>(entity =>

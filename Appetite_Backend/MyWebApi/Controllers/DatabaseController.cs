@@ -34,6 +34,7 @@ public class DatabaseController : ControllerBase
                     Users = await _context.Users.CountAsync(),
                     Rules = await _context.Rules.CountAsync(),
                     Products = await _context.Products.CountAsync(),
+                    ProductTypes = await _context.ProductTypes.CountAsync(),
                     Carriers = await _context.Carriers.CountAsync(),
                     Events = await _context.Events.CountAsync(),
                     Submissions = await _context.Submissions.CountAsync()
@@ -283,6 +284,222 @@ public class DatabaseController : ControllerBase
             return BadRequest(new { Error = ex.Message });
         }
     }
+
+    /// <summary>
+    /// Get all product types for dropdown
+    /// </summary>
+    [HttpGet("product-types")]
+    public async Task<ActionResult> GetProductTypes()
+    {
+        try
+        {
+            var productTypes = await _context.ProductTypes
+                .Where(pt => pt.IsActive)
+                .OrderBy(pt => pt.DisplayOrder)
+                .Select(pt => new
+                {
+                    pt.ProductTypeId,
+                    pt.TypeName,
+                    pt.Description
+                })
+                .ToListAsync();
+
+            return Ok(productTypes);
+        }
+        catch (Exception ex)
+        {
+            return BadRequest(new { Error = ex.Message });
+        }
+    }
+
+    /// <summary>
+    /// Get all products with product type information
+    /// </summary>
+    [HttpGet("products")]
+    public async Task<ActionResult> GetProducts()
+    {
+        try
+        {
+            var products = await _context.Products
+                .Include(p => p.ProductType)
+                .Include(p => p.CarrierEntity)
+                .Select(p => new
+                {
+                    p.Id,
+                    p.Name,
+                    p.Description,
+                    p.Carrier,
+                    ProductType = p.ProductType != null ? p.ProductType.TypeName : null,
+                    ProductTypeId = p.ProductTypeId,
+                    CarrierName = p.CarrierEntity != null ? p.CarrierEntity.DisplayName : p.Carrier,
+                    p.PerOccurrence,
+                    p.Aggregate,
+                    p.MinAnnualRevenue,
+                    p.MaxAnnualRevenue,
+                    p.NaicsAllowed,
+                    p.CreatedAt
+                })
+                .ToListAsync();
+
+            return Ok(products);
+        }
+        catch (Exception ex)
+        {
+            return BadRequest(new { Error = ex.Message });
+        }
+    }
+
+    /// <summary>
+    /// Create new product
+    /// </summary>
+    [HttpPost("products")]
+    public async Task<ActionResult> CreateProduct([FromBody] CreateProductRequest request)
+    {
+        try
+        {
+            var product = new DbProduct
+            {
+                Id = string.IsNullOrEmpty(request.Id) ? Guid.NewGuid().ToString() : request.Id,
+                Name = request.Name,
+                Description = request.Description,
+                Carrier = request.Carrier,
+                ProductTypeId = request.ProductTypeId,
+                PerOccurrence = request.PerOccurrence,
+                Aggregate = request.Aggregate,
+                MinAnnualRevenue = request.MinAnnualRevenue,
+                MaxAnnualRevenue = request.MaxAnnualRevenue,
+                NaicsAllowed = request.NaicsAllowed,
+                CreatedAt = DateTime.UtcNow
+            };
+
+            _context.Products.Add(product);
+            await _context.SaveChangesAsync();
+
+            return Ok(new { Message = "Product created successfully", ProductId = product.Id });
+        }
+        catch (Exception ex)
+        {
+            return BadRequest(new { Error = ex.Message });
+        }
+    }
+
+    /// <summary>
+    /// Update existing product
+    /// </summary>
+    [HttpPut("products/{productId}")]
+    public async Task<ActionResult> UpdateProduct(string productId, [FromBody] UpdateProductRequest request)
+    {
+        try
+        {
+            var product = await _context.Products.FindAsync(productId);
+            if (product == null)
+            {
+                return NotFound(new { Error = "Product not found" });
+            }
+
+            product.Name = request.Name;
+            product.Description = request.Description;
+            product.Carrier = request.Carrier;
+            product.ProductTypeId = request.ProductTypeId;
+            product.PerOccurrence = request.PerOccurrence;
+            product.Aggregate = request.Aggregate;
+            product.MinAnnualRevenue = request.MinAnnualRevenue;
+            product.MaxAnnualRevenue = request.MaxAnnualRevenue;
+            product.NaicsAllowed = request.NaicsAllowed;
+
+            await _context.SaveChangesAsync();
+
+            return Ok(new { Message = "Product updated successfully" });
+        }
+        catch (Exception ex)
+        {
+            return BadRequest(new { Error = ex.Message });
+        }
+    }
+
+    /// <summary>
+    /// Run ProductType migration for existing deployments
+    /// </summary>
+    [HttpPost("migrate-product-types")]
+    [Authorize(Roles = "admin")]
+    public async Task<ActionResult> MigrateProductTypes()
+    {
+        try
+        {
+            // Ensure ProductTypes are seeded
+            if (!await _context.ProductTypes.AnyAsync())
+            {
+                var productTypes = new[]
+                {
+                    new DbProductType { TypeName = "Auto Insurance", Description = "Automobile insurance products", IsActive = true, DisplayOrder = 1, CreatedAt = DateTime.UtcNow },
+                    new DbProductType { TypeName = "Health Insurance", Description = "Health insurance products", IsActive = true, DisplayOrder = 2, CreatedAt = DateTime.UtcNow },
+                    new DbProductType { TypeName = "Life Insurance", Description = "Life insurance products", IsActive = true, DisplayOrder = 3, CreatedAt = DateTime.UtcNow },
+                    new DbProductType { TypeName = "Property Insurance", Description = "Property insurance products", IsActive = true, DisplayOrder = 4, CreatedAt = DateTime.UtcNow },
+                    new DbProductType { TypeName = "Travel Insurance", Description = "Travel insurance products", IsActive = true, DisplayOrder = 5, CreatedAt = DateTime.UtcNow },
+                    new DbProductType { TypeName = "Home Insurance", Description = "Home insurance products", IsActive = true, DisplayOrder = 6, CreatedAt = DateTime.UtcNow }
+                };
+                
+                _context.ProductTypes.AddRange(productTypes);
+                await _context.SaveChangesAsync();
+            }
+            
+            return Ok(new { Message = "ProductType migration completed successfully", Timestamp = DateTime.UtcNow });
+        }
+        catch (Exception ex)
+        {
+            return BadRequest(new { Error = ex.Message, Message = "ProductType migration failed" });
+        }
+    }
+}
+
+public class CreateProductRequest
+{
+    public string? Id { get; set; }
+    
+    [Required]
+    [StringLength(200, MinimumLength = 2)]
+    public string Name { get; set; } = string.Empty;
+    
+    [StringLength(1000)]
+    public string? Description { get; set; }
+    
+    [Required]
+    [StringLength(200)]
+    public string Carrier { get; set; } = string.Empty;
+    
+    public int? ProductTypeId { get; set; }
+    
+    public int PerOccurrence { get; set; } = 1000000;
+    public int Aggregate { get; set; } = 2000000;
+    public int MinAnnualRevenue { get; set; } = 0;
+    public int MaxAnnualRevenue { get; set; } = 5000000;
+    
+    [Required]
+    public string NaicsAllowed { get; set; } = string.Empty;
+}
+
+public class UpdateProductRequest
+{
+    [Required]
+    [StringLength(200, MinimumLength = 2)]
+    public string Name { get; set; } = string.Empty;
+    
+    [StringLength(1000)]
+    public string? Description { get; set; }
+    
+    [Required]
+    [StringLength(200)]
+    public string Carrier { get; set; } = string.Empty;
+    
+    public int? ProductTypeId { get; set; }
+    
+    public int PerOccurrence { get; set; }
+    public int Aggregate { get; set; }
+    public int MinAnnualRevenue { get; set; }
+    public int MaxAnnualRevenue { get; set; }
+    
+    [Required]
+    public string NaicsAllowed { get; set; } = string.Empty;
 }
 
 public class DatabaseCreateUserRequest
