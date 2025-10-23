@@ -3,6 +3,7 @@ using System;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using MyWebApi.Data;
 
@@ -11,9 +12,11 @@ using MyWebApi.Data;
 namespace MyWebApi.Migrations
 {
     [DbContext(typeof(AppDbContext))]
-    partial class AppDbContextModelSnapshot : ModelSnapshot
+    [Migration("20251017053808_ChangeRoleIdToInt")]
+    partial class ChangeRoleIdToInt
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -24,12 +27,9 @@ namespace MyWebApi.Migrations
 
             modelBuilder.Entity("MyWebApi.Models.DbCarrier", b =>
                 {
-                    b.Property<int>("CarrierId")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("int")
-                        .HasAnnotation("SqlServer:Identity", "1001, 1");
-
-                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("CarrierId"));
+                    b.Property<string>("CarrierId")
+                        .HasMaxLength(450)
+                        .HasColumnType("nvarchar(450)");
 
                     b.Property<string>("AdditionalJson")
                         .HasColumnType("nvarchar(max)");
@@ -212,8 +212,9 @@ namespace MyWebApi.Migrations
                         .HasMaxLength(200)
                         .HasColumnType("nvarchar(200)");
 
-                    b.Property<int?>("CarrierID")
-                        .HasColumnType("int");
+                    b.Property<string>("CarrierID")
+                        .HasMaxLength(450)
+                        .HasColumnType("nvarchar(450)");
 
                     b.Property<DateTime>("CreatedAt")
                         .ValueGeneratedOnAdd()
@@ -297,8 +298,9 @@ namespace MyWebApi.Migrations
                         .HasMaxLength(200)
                         .HasColumnType("nvarchar(200)");
 
-                    b.Property<int?>("CarrierID")
-                        .HasColumnType("int");
+                    b.Property<string>("CarrierID")
+                        .HasMaxLength(450)
+                        .HasColumnType("nvarchar(450)");
 
                     b.Property<string>("Conditions")
                         .HasColumnType("nvarchar(max)");
@@ -459,8 +461,9 @@ namespace MyWebApi.Migrations
                         .HasMaxLength(50)
                         .HasColumnType("nvarchar(50)");
 
-                    b.Property<int?>("CarrierID")
-                        .HasColumnType("int");
+                    b.Property<string>("CarrierID")
+                        .HasMaxLength(450)
+                        .HasColumnType("nvarchar(450)");
 
                     b.Property<DateTime>("CreatedAt")
                         .ValueGeneratedOnAdd()
@@ -494,7 +497,8 @@ namespace MyWebApi.Migrations
                         .HasColumnType("nvarchar(200)");
 
                     b.Property<string>("OrganizationId")
-                        .HasColumnType("nvarchar(max)");
+                        .HasMaxLength(450)
+                        .HasColumnType("nvarchar(450)");
 
                     b.Property<string>("OrganizationName")
                         .HasMaxLength(200)

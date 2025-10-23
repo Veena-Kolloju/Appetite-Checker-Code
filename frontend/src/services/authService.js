@@ -27,10 +27,12 @@ export const authService = {
       body: JSON.stringify({
         OrganizationType: 'carrier',
         OrganizationName: data.carrierName,
+        Username: data.username,
+        Password: data.password,
         Admin: {
           Name: data.contactName,
           Email: data.contactEmail,
-          Phone: data.phone
+          Phone: data.phone || ''
         }
       })
     });

@@ -58,7 +58,7 @@ public class CanvasService : ICanvasService
 
     public async Task<LoginResponse> LoginAsync(LoginRequest request)
     {
-        var user = await _context.Users.FirstOrDefaultAsync(u => u.Email == request.Username && u.IsActive);
+        var user = await _context.Users.FirstOrDefaultAsync(u => (u.Email == request.Username || u.Name == request.Username) && u.IsActive);
         if (user == null)
             throw new UnauthorizedAccessException("Invalid credentials");
 
@@ -101,18 +101,17 @@ public class CanvasService : ICanvasService
         var userId = await _idGenerationService.GenerateUserIdAsync();
         var orgId = await _idGenerationService.GenerateOrganizationIdAsync();
         
-        // Generate temporary password (should be sent via email in production)
-        var tempPassword = GenerateTemporaryPassword();
-        var hashedPassword = _passwordService.HashPassword(tempPassword);
+        // Use user's chosen password
+        var hashedPassword = _passwordService.HashPassword(request.Password);
         
         var newUser = new DbUser
         {
             Id = userId,
-            Name = request.Admin.Name,
+            Name = request.Username,
             Email = request.Admin.Email,
             PasswordHash = hashedPassword,
-            Roles = "admin",
-            OrganizationId = orgId,
+            Roles = "carrier",
+            OrganizationId = null,
             OrganizationName = request.OrganizationName,
             CreatedAt = DateTime.UtcNow,
             IsActive = true,
@@ -122,7 +121,7 @@ public class CanvasService : ICanvasService
         _context.Users.Add(newUser);
         await _context.SaveChangesAsync();
         
-        return new RegisterResponse(userId, "active", $"Registration successful. Temporary password: {tempPassword}");
+        return new RegisterResponse(userId, "active", "Registration successful. You can now login with your credentials.");
     }
 
     public async Task<UserProfile> GetCarrierAsync(string id)
@@ -133,7 +132,7 @@ public class CanvasService : ICanvasService
         
         var roles = user.Roles?.Split(',', StringSplitOptions.RemoveEmptyEntries) ?? Array.Empty<string>();
         var profile = new UserProfile(user.Id, user.Name, user.Email, roles, 
-            new OrganizationInfo(user.OrganizationId ?? "", user.OrganizationName ?? ""), 
+            new OrganizationInfo(user.OrganizationId?.ToString() ?? "", user.OrganizationName ?? ""), 
             user.CreatedAt, user.IsActive, user.LastLoginAt, user.AuthProvider);
         return profile;
     }
@@ -177,7 +176,7 @@ public class CanvasService : ICanvasService
             Email = carrier.Email,
             PasswordHash = hashedPassword,
             Roles = string.Join(",", carrier.Roles),
-            OrganizationId = orgId,
+            OrganizationId = null,
             OrganizationName = carrier.Organization.Name,
             CreatedAt = DateTime.UtcNow,
             IsActive = carrier.IsActive,
@@ -190,7 +189,7 @@ public class CanvasService : ICanvasService
         {
             dbCarrier = new DbCarrier
             {
-                CarrierId = carrierId,
+                CarrierId = 0, // Auto-generated
                 LegalName = carrier.Organization.Name,
                 DisplayName = carrier.Organization.Name,
                 PrimaryContactName = carrier.Name,
@@ -205,7 +204,7 @@ public class CanvasService : ICanvasService
         await _context.SaveChangesAsync();
         
         var createdCarrier = new UserProfile(dbUser.Id, dbUser.Name, dbUser.Email, carrier.Roles, 
-            new OrganizationInfo(dbUser.OrganizationId ?? "", dbUser.OrganizationName ?? ""), 
+            new OrganizationInfo(dbUser.OrganizationId?.ToString() ?? "", dbUser.OrganizationName ?? ""), 
             dbUser.CreatedAt, dbUser.IsActive, dbUser.LastLoginAt, dbUser.AuthProvider);
         return createdCarrier;
     }
@@ -479,7 +478,7 @@ public class CanvasService : ICanvasService
             Email = request.Email,
             PasswordHash = _passwordService.HashPassword(tempPassword),
             Roles = request.Role,
-            OrganizationId = orgId,
+            OrganizationId = null,
             OrganizationName = request.OrganizationName,
             CreatedAt = DateTime.UtcNow,
             IsActive = true,
@@ -495,11 +494,11 @@ public class CanvasService : ICanvasService
 
     public async Task<CarrierDetails> GetCarrierDetailsAsync(string id)
     {
-        var carrier = await _context.Carriers.FirstOrDefaultAsync(c => c.CarrierId == id);
+        var carrier = await _context.Carriers.FirstOrDefaultAsync(c => c.CarrierId.ToString() == id);
         if (carrier == null)
             throw new KeyNotFoundException($"Carrier {id} not found");
         
-        return new CarrierDetails(carrier.CarrierId, carrier.LegalName, carrier.DisplayName, carrier.Country,
+        return new CarrierDetails(carrier.CarrierId.ToString(), carrier.LegalName, carrier.DisplayName, carrier.Country,
             carrier.HeadquartersAddress, carrier.PrimaryContactName, carrier.PrimaryContactEmail, carrier.PrimaryContactPhone,
             carrier.TechnicalContactName, carrier.TechnicalContactEmail, carrier.AuthMethod, carrier.SsoMetadataUrl,
             carrier.ApiClientId, carrier.ApiSecretKeyRef, carrier.DataResidency, carrier.ProductsOffered?.Split(';'),
@@ -518,7 +517,7 @@ public class CanvasService : ICanvasService
         var carriers = await query
             .Skip((page - 1) * pageSize)
             .Take(pageSize)
-            .Select(c => new CarrierSummary(c.CarrierId, c.LegalName, c.DisplayName, c.Country, c.PrimaryContactEmail))
+            .Select(c => new CarrierSummary(c.CarrierId.ToString(), c.LegalName, c.DisplayName, c.Country, c.PrimaryContactEmail))
             .ToArrayAsync();
 
         var pagination = new PaginationInfo(page, pageSize, totalPages, totalItems);
@@ -527,10 +526,9 @@ public class CanvasService : ICanvasService
 
     public async Task<CarrierDetails> CreateCarrierDetailsAsync(CarrierDetails carrier)
     {
-        var newId = $"car-{DateTime.UtcNow.Ticks}";
         var dbCarrier = new DbCarrier
         {
-            CarrierId = newId,
+            CarrierId = 0, // Auto-generated
             LegalName = carrier.LegalName,
             DisplayName = carrier.DisplayName,
             Country = carrier.Country,
@@ -566,7 +564,7 @@ public class CanvasService : ICanvasService
         _context.Carriers.Add(dbCarrier);
         await _context.SaveChangesAsync();
         
-        return new CarrierDetails(dbCarrier.CarrierId, dbCarrier.LegalName, dbCarrier.DisplayName, dbCarrier.Country,
+        return new CarrierDetails(dbCarrier.CarrierId.ToString(), dbCarrier.LegalName, dbCarrier.DisplayName, dbCarrier.Country,
             dbCarrier.HeadquartersAddress, dbCarrier.PrimaryContactName, dbCarrier.PrimaryContactEmail, dbCarrier.PrimaryContactPhone,
             dbCarrier.TechnicalContactName, dbCarrier.TechnicalContactEmail, dbCarrier.AuthMethod, dbCarrier.SsoMetadataUrl,
             dbCarrier.ApiClientId, dbCarrier.ApiSecretKeyRef, dbCarrier.DataResidency, dbCarrier.ProductsOffered?.Split(';'),
@@ -578,7 +576,7 @@ public class CanvasService : ICanvasService
 
     public async Task<CarrierDetails> UpdateCarrierDetailsAsync(string id, CarrierDetails carrier)
     {
-        var existingCarrier = await _context.Carriers.FirstOrDefaultAsync(c => c.CarrierId == id);
+        var existingCarrier = await _context.Carriers.FirstOrDefaultAsync(c => c.CarrierId.ToString() == id);
         if (existingCarrier == null)
             throw new KeyNotFoundException($"Carrier {id} not found");
         
@@ -614,7 +612,7 @@ public class CanvasService : ICanvasService
         
         await _context.SaveChangesAsync();
         
-        return new CarrierDetails(existingCarrier.CarrierId, existingCarrier.LegalName, existingCarrier.DisplayName, existingCarrier.Country,
+        return new CarrierDetails(existingCarrier.CarrierId.ToString(), existingCarrier.LegalName, existingCarrier.DisplayName, existingCarrier.Country,
             existingCarrier.HeadquartersAddress, existingCarrier.PrimaryContactName, existingCarrier.PrimaryContactEmail, existingCarrier.PrimaryContactPhone,
             existingCarrier.TechnicalContactName, existingCarrier.TechnicalContactEmail, existingCarrier.AuthMethod, existingCarrier.SsoMetadataUrl,
             existingCarrier.ApiClientId, existingCarrier.ApiSecretKeyRef, existingCarrier.DataResidency, existingCarrier.ProductsOffered?.Split(';'),
@@ -677,7 +675,7 @@ public class CanvasService : ICanvasService
 
     public async Task DeleteCarrierDetailsAsync(string id)
     {
-        var existingCarrier = await _context.Carriers.FirstOrDefaultAsync(c => c.CarrierId == id);
+        var existingCarrier = await _context.Carriers.FirstOrDefaultAsync(c => c.CarrierId.ToString() == id);
         if (existingCarrier == null)
             throw new KeyNotFoundException($"Carrier {id} not found");
         

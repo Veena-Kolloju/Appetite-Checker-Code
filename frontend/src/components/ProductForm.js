@@ -153,15 +153,21 @@ const ProductForm = ({ onBack, onSuccess, editProduct = null }) => {
             <label className="block text-sm font-medium text-gray-700 mb-2">
               Product Type *
             </label>
-            <input
-              type="text"
+            <select
               name="productType"
               value={formData.productType}
               onChange={handleChange}
               required
               className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-transparent"
-              placeholder="Enter product type (e.g., Auto, Home, Life)"
-            />
+            >
+              <option value="">Select Product Type</option>
+              <option value="Auto Insurance">Auto Insurance</option>
+              <option value="Health Insurance">Health Insurance</option>
+              <option value="Life Insurance">Life Insurance</option>
+              <option value="Property Insurance">Property Insurance</option>
+              <option value="Travel Insurance">Travel Insurance</option>
+              <option value="Home Insurance">Home Insurance</option>
+            </select>
           </div>
 
           <div>

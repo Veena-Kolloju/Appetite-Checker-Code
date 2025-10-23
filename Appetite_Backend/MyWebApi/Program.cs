@@ -1,5 +1,6 @@
 using MyWebApi.Services;
 using MyWebApi.Data;
+using MyWebApi.Middleware;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.IdentityModel.Tokens;
@@ -12,6 +13,9 @@ builder.Services.AddDbContext<AppDbContext>(options =>
     options.UseSqlServer(builder.Configuration.GetConnectionString("DefaultConnection")));
 
 builder.Services.AddControllers();
+
+
+
 builder.Services.AddScoped<ICheckerService, CheckerService>();
 builder.Services.AddScoped<ISearchService, SearchService>();
 builder.Services.AddScoped<ICanvasService, CanvasService>();
@@ -69,18 +73,41 @@ if (app.Environment.IsDevelopment())
 
 app.UseHttpsRedirection();
 
+// Security headers
+app.Use(async (context, next) =>
+{
+    context.Response.Headers["X-Content-Type-Options"] = "nosniff";
+    context.Response.Headers["X-Frame-Options"] = "DENY";
+    context.Response.Headers["X-XSS-Protection"] = "1; mode=block";
+    context.Response.Headers["Referrer-Policy"] = "strict-origin-when-cross-origin";
+    context.Response.Headers["Content-Security-Policy"] = "default-src 'self'; script-src 'self'; style-src 'self' 'unsafe-inline'; img-src 'self' data:; font-src 'self';";
+    await next();
+});
+
+app.UseMiddleware<GlobalExceptionMiddleware>();
+
 app.UseCors("AllowFrontend");
 
 app.UseAuthentication();
 app.UseAuthorization();
 
+
+
 app.MapControllers();
 
 // Seed initial data
-using (var scope = app.Services.CreateScope())
+try
 {
-    var seedService = scope.ServiceProvider.GetRequiredService<SeedService>();
-    await seedService.SeedInitialDataAsync();
+    using (var scope = app.Services.CreateScope())
+    {
+        var seedService = scope.ServiceProvider.GetRequiredService<SeedService>();
+        await seedService.SeedInitialDataAsync();
+    }
+}
+catch (Exception ex)
+{
+    var logger = app.Services.GetRequiredService<ILogger<Program>>();
+    logger.LogError(ex, "Failed to seed initial data");
 }
 
 app.Run();

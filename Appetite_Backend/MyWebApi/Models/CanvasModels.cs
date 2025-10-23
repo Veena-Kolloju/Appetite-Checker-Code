@@ -6,7 +6,7 @@ public record LoginResponse(string AccessToken, string TokenType, int ExpiresIn,
 public record UserInfo(string Id, string Name, string[] Roles, bool IsActive, DateTime? LastLoginAt, string? AuthProvider);
 
 // Registration models
-public record RegisterRequest(string OrganizationType, string OrganizationName, AdminInfo Admin);
+public record RegisterRequest(string OrganizationType, string OrganizationName, AdminInfo Admin, string Username, string Password);
 public record AdminInfo(string Name, string Email, string Phone);
 public record RegisterResponse(string UserId, string Status, string Message);
 

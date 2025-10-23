@@ -20,7 +20,7 @@ public class AppDbContext : DbContext
         modelBuilder.Entity<DbRole>(entity =>
         {
             entity.HasKey(e => e.RoleId);
-            entity.Property(e => e.RoleId).HasMaxLength(450).IsRequired();
+            entity.Property(e => e.RoleId).ValueGeneratedOnAdd();
             entity.Property(e => e.RoleName).HasMaxLength(100).IsRequired();
             entity.Property(e => e.Description).HasMaxLength(500);
             entity.Property(e => e.CreatedAt).HasDefaultValueSql("SYSUTCDATETIME()");
@@ -37,9 +37,9 @@ public class AppDbContext : DbContext
             entity.Property(e => e.Email).HasMaxLength(255).IsRequired();
             entity.Property(e => e.PasswordHash).HasMaxLength(255).IsRequired();
             entity.Property(e => e.Roles).HasMaxLength(200);
-            entity.Property(e => e.RoleId).HasMaxLength(450);
-            entity.Property(e => e.CarrierID).HasMaxLength(450);
-            entity.Property(e => e.OrganizationId).HasMaxLength(450);
+            entity.Property(e => e.RoleId);
+            entity.Property(e => e.CarrierID);
+            entity.Property(e => e.OrganizationId);
             entity.Property(e => e.OrganizationName).HasMaxLength(200);
             entity.Property(e => e.AuthProvider).HasMaxLength(50);
             entity.Property(e => e.PasswordResetToken).HasMaxLength(255);
@@ -68,7 +68,7 @@ public class AppDbContext : DbContext
         modelBuilder.Entity<DbCarrier>(entity =>
         {
             entity.HasKey(e => e.CarrierId);
-            entity.Property(e => e.CarrierId).HasMaxLength(450).IsRequired();
+            entity.Property(e => e.CarrierId).ValueGeneratedOnAdd().HasAnnotation("SqlServer:Identity", "1001, 1");
             entity.Property(e => e.LegalName).HasMaxLength(300).IsRequired();
             entity.Property(e => e.DisplayName).HasMaxLength(200).IsRequired();
             entity.Property(e => e.Country).HasMaxLength(2);
@@ -107,7 +107,7 @@ public class AppDbContext : DbContext
             entity.Property(e => e.Id).HasMaxLength(450).IsRequired();
             entity.Property(e => e.Name).HasMaxLength(200).IsRequired();
             entity.Property(e => e.Carrier).HasMaxLength(200);
-            entity.Property(e => e.CarrierID).HasMaxLength(450);
+            entity.Property(e => e.CarrierID);
             entity.Property(e => e.CreatedAt).HasDefaultValueSql("SYSUTCDATETIME()");
             
             // Foreign key relationship
@@ -128,7 +128,7 @@ public class AppDbContext : DbContext
             entity.Property(e => e.BusinessType).HasMaxLength(100);
             entity.Property(e => e.Carrier).HasMaxLength(200);
             entity.Property(e => e.Product).HasMaxLength(200);
-            entity.Property(e => e.CarrierID).HasMaxLength(450);
+            entity.Property(e => e.CarrierID);
             entity.Property(e => e.ProductID).HasMaxLength(450);
             entity.Property(e => e.Priority).HasMaxLength(50);
             entity.Property(e => e.Outcome).HasMaxLength(50);

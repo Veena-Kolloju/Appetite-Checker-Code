@@ -3,6 +3,7 @@ using MyWebApi.Models;
 using MyWebApi.Services;
 using Microsoft.AspNetCore.Authorization;
 
+
 namespace MyWebApi.Controllers;
 
 [ApiController]
@@ -39,8 +40,15 @@ public class CanvasController : ControllerBase
     [HttpPost("register")]
     public async Task<ActionResult<RegisterResponse>> Register([FromBody] RegisterRequest request)
     {
-        var result = await _canvasService.RegisterAsync(request);
-        return Ok(result);
+        try
+        {
+            var result = await _canvasService.RegisterAsync(request);
+            return Ok(result);
+        }
+        catch (InvalidOperationException ex)
+        {
+            return BadRequest(ex.Message);
+        }
     }
 
     /// <summary>
@@ -81,8 +89,15 @@ public class CanvasController : ControllerBase
         [FromQuery] int pageSize = 25,
         [FromQuery] string? role = null)
     {
-        var users = await _canvasService.GetCarriersAsync(page, pageSize, role);
-        return Ok(users);
+        try
+        {
+            var users = await _canvasService.GetCarriersAsync(page, pageSize, role);
+            return Ok(users);
+        }
+        catch (Exception ex)
+        {
+            return StatusCode(500, $"Error retrieving carriers: {ex.Message}");
+        }
     }
 
     /// <summary>
@@ -92,8 +107,15 @@ public class CanvasController : ControllerBase
     [Authorize(Roles = "admin")]
     public async Task<ActionResult<UserProfile>> CreateCarrier([FromBody] UserProfile carrier)
     {
-        var result = await _canvasService.CreateCarrierAsync(carrier);
-        return Ok(result);
+        try
+        {
+            var result = await _canvasService.CreateCarrierAsync(carrier);
+            return Ok(result);
+        }
+        catch (Exception ex)
+        {
+            return BadRequest($"Error creating carrier: {ex.Message}");
+        }
     }
 
     /// <summary>
@@ -124,8 +146,15 @@ public class CanvasController : ControllerBase
         [FromQuery] int page = 1,
         [FromQuery] int pageSize = 20)
     {
-        var products = await _canvasService.GetProductsAsync(carrier, page, pageSize);
-        return Ok(products);
+        try
+        {
+            var products = await _canvasService.GetProductsAsync(carrier, page, pageSize);
+            return Ok(products);
+        }
+        catch (Exception ex)
+        {
+            return StatusCode(500, $"Error retrieving products: {ex.Message}");
+        }
     }
 
     /// <summary>
@@ -135,8 +164,15 @@ public class CanvasController : ControllerBase
     [Authorize(Roles = "admin,carrier")]
     public async Task<ActionResult<ProductDetails>> CreateProduct([FromBody] ProductDetails product)
     {
-        var result = await _canvasService.CreateProductAsync(product);
-        return Ok(result);
+        try
+        {
+            var result = await _canvasService.CreateProductAsync(product);
+            return Ok(result);
+        }
+        catch (Exception ex)
+        {
+            return BadRequest($"Error creating product: {ex.Message}");
+        }
     }
 
     /// <summary>
@@ -203,8 +239,15 @@ public class CanvasController : ControllerBase
         [FromQuery] int pageSize = 25,
         [FromQuery] string? sortBy = null)
     {
-        var rules = await _canvasService.GetRulesAsync(page, pageSize, sortBy);
-        return Ok(rules);
+        try
+        {
+            var rules = await _canvasService.GetRulesAsync(page, pageSize, sortBy);
+            return Ok(rules);
+        }
+        catch (Exception ex)
+        {
+            return StatusCode(500, $"Error retrieving rules: {ex.Message}");
+        }
     }
 
     /// <summary>
@@ -214,8 +257,15 @@ public class CanvasController : ControllerBase
     [Authorize(Roles = "admin,carrier")]
     public async Task<ActionResult<RuleDetails>> CreateRule([FromBody] RuleDetails rule)
     {
-        var result = await _canvasService.CreateRuleAsync(rule);
-        return Ok(result);
+        try
+        {
+            var result = await _canvasService.CreateRuleAsync(rule);
+            return Ok(result);
+        }
+        catch (Exception ex)
+        {
+            return BadRequest($"Error creating rule: {ex.Message}");
+        }
     }
 
     /// <summary>
@@ -262,8 +312,15 @@ public class CanvasController : ControllerBase
     [Authorize(Roles = "admin,carrier")]
     public async Task<ActionResult<RuleUploadResponse>> UploadRules(IFormFile rulesFile, bool overwrite = false)
     {
-        var result = await _canvasService.UploadRulesAsync(rulesFile, overwrite);
-        return Ok(result);
+        try
+        {
+            var result = await _canvasService.UploadRulesAsync(rulesFile, overwrite);
+            return Ok(result);
+        }
+        catch (Exception ex)
+        {
+            return BadRequest($"Error uploading rules: {ex.Message}");
+        }
     }
 
     /// <summary>
@@ -291,8 +348,15 @@ public class CanvasController : ControllerBase
         [FromQuery] int page = 1,
         [FromQuery] int pageSize = 25)
     {
-        var carriers = await _canvasService.GetCarriersListAsync(page, pageSize);
-        return Ok(carriers);
+        try
+        {
+            var carriers = await _canvasService.GetCarriersListAsync(page, pageSize);
+            return Ok(carriers);
+        }
+        catch (Exception ex)
+        {
+            return StatusCode(500, $"Error retrieving carriers list: {ex.Message}");
+        }
     }
 
     /// <summary>
@@ -301,8 +365,15 @@ public class CanvasController : ControllerBase
     [HttpPost("carrier-details")]
     public async Task<ActionResult<CarrierDetails>> CreateCarrierDetails([FromBody] CarrierDetails carrier)
     {
-        var result = await _canvasService.CreateCarrierDetailsAsync(carrier);
-        return Ok(result);
+        try
+        {
+            var result = await _canvasService.CreateCarrierDetailsAsync(carrier);
+            return Ok(result);
+        }
+        catch (Exception ex)
+        {
+            return BadRequest($"Error creating carrier details: {ex.Message}");
+        }
     }
 
     /// <summary>
@@ -348,8 +419,15 @@ public class CanvasController : ControllerBase
     public async Task<ActionResult<CanvasAnalyticsResponse>> GetAnalytics(
         [FromQuery] DateTime? since = null)
     {
-        var analytics = await _canvasService.GetAnalyticsAsync(since);
-        return Ok(analytics);
+        try
+        {
+            var analytics = await _canvasService.GetAnalyticsAsync(since);
+            return Ok(analytics);
+        }
+        catch (Exception ex)
+        {
+            return StatusCode(500, $"Error retrieving analytics: {ex.Message}");
+        }
     }
 
     /// <summary>
@@ -358,7 +436,18 @@ public class CanvasController : ControllerBase
     [HttpPost("create-user")]
     public async Task<ActionResult<object>> CreateUser([FromBody] CreateUserRequest request)
     {
-        var result = await _canvasService.CreateUserAsync(request);
-        return Ok(result);
+        try
+        {
+            var result = await _canvasService.CreateUserAsync(request);
+            return Ok(result);
+        }
+        catch (InvalidOperationException ex)
+        {
+            return BadRequest(ex.Message);
+        }
+        catch (Exception ex)
+        {
+            return StatusCode(500, $"Error creating user: {ex.Message}");
+        }
     }
 }

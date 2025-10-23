@@ -8,15 +8,35 @@ public class SeedService
 {
     private readonly AppDbContext _context;
     private readonly IPasswordService _passwordService;
+    private readonly IConfiguration _configuration;
 
-    public SeedService(AppDbContext context, IPasswordService passwordService)
+    public SeedService(AppDbContext context, IPasswordService passwordService, IConfiguration configuration)
     {
         _context = context;
         _passwordService = passwordService;
+        _configuration = configuration;
     }
 
     public async Task SeedInitialDataAsync()
     {
+        // Ensure roles exist first
+        if (!await _context.Roles.AnyAsync())
+        {
+            var roles = new[]
+            {
+                new DbRole { RoleName = "Admin", Description = "System administrator with full access", CreatedAt = DateTime.UtcNow },
+                new DbRole { RoleName = "Carrier", Description = "Insurance carrier user", CreatedAt = DateTime.UtcNow },
+                new DbRole { RoleName = "User", Description = "Standard user with limited access", CreatedAt = DateTime.UtcNow }
+            };
+            _context.Roles.AddRange(roles);
+            await _context.SaveChangesAsync();
+        }
+
+        // Get role IDs
+        var adminRole = await _context.Roles.FirstAsync(r => r.RoleName == "Admin");
+        var carrierRole = await _context.Roles.FirstAsync(r => r.RoleName == "Carrier");
+        var userRole = await _context.Roles.FirstAsync(r => r.RoleName == "User");
+
         // Clear existing users and reseed
         if (await _context.Users.AnyAsync())
         {
@@ -24,6 +44,7 @@ public class SeedService
             await _context.SaveChangesAsync();
         }
 
+        var defaultPassword = _configuration["SeedData:DefaultPassword"] ?? "TempPassword123!";
         var users = new[]
         {
             new DbUser
@@ -31,8 +52,9 @@ public class SeedService
                 Id = "usr-001",
                 Name = "System Admin",
                 Email = "admin@appetitechecker.com",
-                PasswordHash = _passwordService.HashPassword("Admin123!"),
-                Roles = "admin",
+                PasswordHash = _passwordService.HashPassword(defaultPassword),
+                Roles = "admin", // Keep for backward compatibility
+                RoleId = adminRole.RoleId,
                 OrganizationId = "SYS001",
                 OrganizationName = "System Organization",
                 CreatedAt = DateTime.UtcNow,
@@ -45,8 +67,9 @@ public class SeedService
                 Id = "usr-002",
                 Name = "John Carrier",
                 Email = "carrier@example.com",
-                PasswordHash = _passwordService.HashPassword("Admin123!"),
-                Roles = "carrier",
+                PasswordHash = _passwordService.HashPassword(defaultPassword),
+                Roles = "carrier", // Keep for backward compatibility
+                RoleId = carrierRole.RoleId,
                 OrganizationId = "ABC001",
                 OrganizationName = "ABC Insurance",
                 CreatedAt = DateTime.UtcNow,
@@ -59,8 +82,9 @@ public class SeedService
                 Id = "usr-003",
                 Name = "Jane Agent",
                 Email = "agent@example.com",
-                PasswordHash = _passwordService.HashPassword("Admin123!"),
-                Roles = "user",
+                PasswordHash = _passwordService.HashPassword(defaultPassword),
+                Roles = "user", // Keep for backward compatibility
+                RoleId = userRole.RoleId,
                 OrganizationId = "XYZ001",
                 OrganizationName = "XYZ Brokerage",
                 CreatedAt = DateTime.UtcNow,
@@ -73,8 +97,9 @@ public class SeedService
                 Id = "usr-004",
                 Name = "Mike Manager",
                 Email = "manager@demo.com",
-                PasswordHash = _passwordService.HashPassword("Admin123!"),
-                Roles = "admin",
+                PasswordHash = _passwordService.HashPassword(defaultPassword),
+                Roles = "admin", // Keep for backward compatibility
+                RoleId = adminRole.RoleId,
                 OrganizationId = "DEMO001",
                 OrganizationName = "Demo Corporation",
                 CreatedAt = DateTime.UtcNow,
@@ -87,8 +112,9 @@ public class SeedService
                 Id = "usr-005",
                 Name = "Sarah Smith",
                 Email = "sarah@carrier2.com",
-                PasswordHash = _passwordService.HashPassword("Admin123!"),
-                Roles = "carrier",
+                PasswordHash = _passwordService.HashPassword(defaultPassword),
+                Roles = "carrier", // Keep for backward compatibility
+                RoleId = carrierRole.RoleId,
                 OrganizationId = "DEF001",
                 OrganizationName = "DEF Insurance Group",
                 CreatedAt = DateTime.UtcNow,

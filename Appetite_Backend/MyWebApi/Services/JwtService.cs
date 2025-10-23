@@ -21,10 +21,19 @@ public class JwtService : IJwtService
 
     public JwtService(IConfiguration configuration)
     {
-        _secretKey = configuration["Jwt:SecretKey"] ?? "YourSuperSecretKeyThatIsAtLeast32CharactersLong!";
-        _issuer = configuration["Jwt:Issuer"] ?? "AppetiteChecker";
-        _audience = configuration["Jwt:Audience"] ?? "AppetiteCheckerUsers";
-        _expirationMinutes = int.Parse(configuration["Jwt:ExpirationMinutes"] ?? "60");
+        _secretKey = configuration["Jwt:SecretKey"] ?? throw new InvalidOperationException("JWT SecretKey is required");
+        _issuer = configuration["Jwt:Issuer"] ?? throw new InvalidOperationException("JWT Issuer is required");
+        _audience = configuration["Jwt:Audience"] ?? throw new InvalidOperationException("JWT Audience is required");
+        
+        if (!int.TryParse(configuration["Jwt:ExpirationMinutes"], out _expirationMinutes))
+        {
+            _expirationMinutes = 60;
+        }
+        
+        if (_secretKey.Length < 32)
+        {
+            throw new InvalidOperationException("JWT SecretKey must be at least 32 characters long");
+        }
     }
 
     public string GenerateToken(DbUser user)
@@ -37,7 +46,7 @@ public class JwtService : IJwtService
             new(ClaimTypes.NameIdentifier, user.Id),
             new(ClaimTypes.Name, user.Name),
             new(ClaimTypes.Email, user.Email),
-            new("organization_id", user.OrganizationId ?? ""),
+            new("organization_id", user.OrganizationId?.ToString() ?? ""),
             new("organization_name", user.OrganizationName ?? ""),
             new("auth_provider", user.AuthProvider ?? "local")
         };

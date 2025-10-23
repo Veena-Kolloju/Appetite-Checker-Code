@@ -127,7 +127,7 @@ const AuthPage = () => {
               <LogIn className="w-6 h-6" />
             </div>
             <div className="text-center">
-              <h3 className="text-lg font-bold mb-1">Login As Carrier</h3>
+              <h3 className="text-lg font-bold mb-1">Login</h3>
               <p className="text-primary-100 text-sm">Access your account</p>
             </div>
           </div>
@@ -154,7 +154,7 @@ const AuthPage = () => {
               <UserPlus className="w-6 h-6" />
             </div>
             <div className="text-center">
-              <h3 className="text-lg font-bold mb-1">Register As Carrier</h3>
+              <h3 className="text-lg font-bold mb-1">Register</h3>
               <p className="text-accent-100 text-sm">Create new account</p>
             </div>
           </div>

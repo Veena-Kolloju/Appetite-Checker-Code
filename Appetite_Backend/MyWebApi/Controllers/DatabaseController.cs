@@ -3,6 +3,7 @@ using Microsoft.EntityFrameworkCore;
 using MyWebApi.Data;
 using MyWebApi.Models;
 using Microsoft.AspNetCore.Authorization;
+using System.ComponentModel.DataAnnotations;
 
 namespace MyWebApi.Controllers;
 
@@ -286,10 +287,22 @@ public class DatabaseController : ControllerBase
 
 public class DatabaseCreateUserRequest
 {
+    [Required]
+    [StringLength(100, MinimumLength = 2)]
     public string Name { get; set; } = string.Empty;
+    
+    [Required]
+    [EmailAddress]
     public string EmailId { get; set; } = string.Empty;
+    
+    [Required]
+    [RegularExpression("^(admin|carrier|user)$", ErrorMessage = "Role must be admin, carrier, or user")]
     public string Role { get; set; } = string.Empty;
+    
+    [StringLength(200)]
     public string? OrganizationName { get; set; }
+    
+    [StringLength(50)]
     public string? OrgnId { get; set; }
 }
 

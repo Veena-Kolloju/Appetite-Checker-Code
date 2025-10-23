@@ -7,7 +7,7 @@ namespace MyWebApi.Models;
 public class DbRole
 {
     [Key]
-    public string RoleId { get; set; } = string.Empty;
+    public int RoleId { get; set; }
     public string RoleName { get; set; } = string.Empty;
     public string? Description { get; set; }
     public DateTime CreatedAt { get; set; }
@@ -25,8 +25,8 @@ public class DbUser
     public string Email { get; set; } = string.Empty;
     public string PasswordHash { get; set; } = string.Empty;
     public string? Roles { get; set; } // Keep for backward compatibility
-    public string? RoleId { get; set; } // FK to Role
-    public string? CarrierID { get; set; } // FK to Carrier, null if Admin
+    public int? RoleId { get; set; } // FK to Role
+    public int? CarrierID { get; set; } // FK to Carrier, null if Admin
     public string? OrganizationId { get; set; }
     public string? OrganizationName { get; set; }
     public DateTime CreatedAt { get; set; }
@@ -52,7 +52,7 @@ public class DbProduct
     public string Id { get; set; } = string.Empty;
     public string Name { get; set; } = string.Empty;
     public string Carrier { get; set; } = string.Empty; // Keep as string for now
-    public string? CarrierID { get; set; } // Add FK to Carrier
+    public int? CarrierID { get; set; } // Add FK to Carrier
     public int PerOccurrence { get; set; }
     public int Aggregate { get; set; }
     public int MinAnnualRevenue { get; set; }
@@ -79,7 +79,7 @@ public class DbRule
     public string? States { get; set; }
     public string? Carrier { get; set; } // Keep as string for now
     public string? Product { get; set; } // Keep as string for now
-    public string? CarrierID { get; set; } // Add FK to Carrier
+    public int? CarrierID { get; set; } // Add FK to Carrier
     public string? ProductID { get; set; } // Add FK to Product
     public string? Restrictions { get; set; }
     public string? Priority { get; set; }
@@ -124,7 +124,7 @@ public class DbEvent
 public class DbCarrier
 {
     [Key]
-    public string CarrierId { get; set; } = string.Empty;
+    public int CarrierId { get; set; }
     public string LegalName { get; set; } = string.Empty;
     public string DisplayName { get; set; } = string.Empty;
     public string? Country { get; set; }

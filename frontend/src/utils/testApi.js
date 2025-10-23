@@ -11,12 +11,12 @@ export const testApiConnection = async () => {
 };
 
 // Test login API
-export const testLogin = async () => {
+export const testLogin = async (username = 'admin@appetitechecker.com', password = 'Admin123!') => {
   try {
     const response = await fetch('http://localhost:5131/api/canvas/login', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ Username: 'admin@appetitechecker.com', Password: 'Admin123!' })
+      body: JSON.stringify({ Username: username, Password: password })
     });
     
     console.log('Login API response:', response.status);
