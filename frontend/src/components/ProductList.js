@@ -12,10 +12,17 @@ const ProductList = ({ onCreateProduct, onEditProduct }) => {
   const [viewingProduct, setViewingProduct] = useState(null);
 
   useEffect(() => {
-    const user = localStorage.getItem('user');
-    if (user) {
-      const userData = JSON.parse(user);
-      setUserRole(userData.roles?.[0] || 'user');
+    try {
+      const user = localStorage.getItem('user');
+      if (user) {
+        const userData = JSON.parse(user);
+        // Handle both array and string formats for roles
+        const roles = Array.isArray(userData.roles) ? userData.roles : (userData.roles ? userData.roles.split(',') : []);
+        setUserRole(roles[0] || 'user');
+      }
+    } catch (err) {
+      console.error('Error parsing user data:', err);
+      setUserRole('user');
     }
     loadProducts();
   }, []);
@@ -24,10 +31,14 @@ const ProductList = ({ onCreateProduct, onEditProduct }) => {
     try {
       setLoading(true);
       const result = await productService.getProducts();
-      setProducts(result || []);
+      // Handle paginated response structure
+      const productData = result?.data || result || [];
+      setProducts(Array.isArray(productData) ? productData : []);
       setError('');
     } catch (err) {
-      setError(err.message);
+      console.error('Load products error:', err);
+      setError(err.message || 'Failed to load products');
+      setProducts([]);
     } finally {
       setLoading(false);
     }
@@ -39,7 +50,8 @@ const ProductList = ({ onCreateProduct, onEditProduct }) => {
       setProducts(products.filter(p => p.id !== productId));
       setDeleteConfirm(null);
     } catch (err) {
-      setError(err.message);
+      console.error('Delete product error:', err);
+      setError(err.message || 'Failed to delete product');
     }
   };
 
@@ -49,7 +61,8 @@ const ProductList = ({ onCreateProduct, onEditProduct }) => {
       const fullProduct = await productService.getProduct(product.id);
       onEditProduct(fullProduct);
     } catch (err) {
-      setError(err.message);
+      console.error('Edit product error:', err);
+      setError(err.message || 'Failed to load product details');
     }
   };
 
@@ -58,7 +71,8 @@ const ProductList = ({ onCreateProduct, onEditProduct }) => {
       const fullProduct = await productService.getProduct(product.id);
       setViewingProduct(fullProduct);
     } catch (err) {
-      setError(err.message);
+      console.error('View product error:', err);
+      setError(err.message || 'Failed to load product details');
     }
   };
 
@@ -97,18 +111,24 @@ const ProductList = ({ onCreateProduct, onEditProduct }) => {
             <div className="flex justify-between items-start">
               <div>
                 <h3 className="font-semibold text-lg">{product.name}</h3>
-                <p className="text-gray-600">{product.description || 'No description available'}</p>
+                {product.description && (
+                  <p className="text-gray-600">{product.description}</p>
+                )}
                 <div className="flex gap-2 mt-2">
-                  <span className="px-2 py-1 bg-blue-100 text-blue-800 rounded-full text-xs">
-                    {product.productType || 'No Type'}
-                  </span>
+                  {product.productType && (
+                    <span className="px-2 py-1 bg-blue-100 text-blue-800 rounded-full text-xs">
+                      {product.productType}
+                    </span>
+                  )}
                   <span className="px-2 py-1 bg-green-100 text-green-800 rounded-full text-xs">
                     {product.carrierName || product.carrier}
                   </span>
                 </div>
-                <div className="mt-2 text-sm text-gray-500">
-                  <span>NAICS: {product.naicsAllowed || 'Not specified'}</span>
-                </div>
+                {product.naicsAllowed && (
+                  <div className="mt-2 text-sm text-gray-500">
+                    <span>NAICS: {product.naicsAllowed}</span>
+                  </div>
+                )}
               </div>
               <div className="flex items-center gap-2">
                 <div className="flex gap-2">
@@ -196,8 +216,8 @@ const ProductList = ({ onCreateProduct, onEditProduct }) => {
             <div className="space-y-3">
               <div><strong>ID:</strong> {viewingProduct.id}</div>
               <div><strong>Name:</strong> {viewingProduct.name}</div>
-              <div><strong>Description:</strong> {viewingProduct.description || 'No description available'}</div>
-              <div><strong>Product Type:</strong> {viewingProduct.productType || 'No Type'}</div>
+              {viewingProduct.description && <div><strong>Description:</strong> {viewingProduct.description}</div>}
+              {viewingProduct.productType && <div><strong>Product Type:</strong> {viewingProduct.productType}</div>}
               <div><strong>Carrier:</strong> {viewingProduct.carrier}</div>
               <div><strong>Per Occurrence:</strong> ${viewingProduct.perOccurrence?.toLocaleString() || 'N/A'}</div>
               <div><strong>Aggregate:</strong> ${viewingProduct.aggregate?.toLocaleString() || 'N/A'}</div>

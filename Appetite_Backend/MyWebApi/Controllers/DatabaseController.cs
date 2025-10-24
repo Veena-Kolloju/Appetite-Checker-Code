@@ -181,7 +181,7 @@ public class DatabaseController : ControllerBase
                     EmailId = u.Email,
                     Role = u.Roles,
                     OrganizationName = u.OrganizationName,
-                    OrgnId = u.OrganizationId,
+                    OrgnId = u.CarrierID.HasValue ? u.CarrierID.Value.ToString() : null,
                     u.CreatedAt,
                     u.IsActive
                 })
@@ -211,7 +211,7 @@ public class DatabaseController : ControllerBase
                 Email = request.EmailId,
                 Roles = request.Role,
                 OrganizationName = request.OrganizationName,
-                OrganizationId = request.OrgnId,
+
                 CreatedAt = DateTime.UtcNow,
                 IsActive = true,
                 PasswordHash = "temp_password_hash" // Should be properly hashed
@@ -247,7 +247,7 @@ public class DatabaseController : ControllerBase
             user.Email = request.EmailId;
             user.Roles = request.Role;
             user.OrganizationName = request.OrganizationName;
-            user.OrganizationId = request.OrgnId;
+
 
             await _context.SaveChangesAsync();
 

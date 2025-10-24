@@ -3,7 +3,7 @@ namespace MyWebApi.Models;
 // Authentication models
 public record LoginRequest(string Username, string Password);
 public record LoginResponse(string AccessToken, string TokenType, int ExpiresIn, UserInfo User);
-public record UserInfo(string Id, string Name, string[] Roles, bool IsActive, DateTime? LastLoginAt, string? AuthProvider);
+public record UserInfo(string Id, string Name, string[] Roles, bool IsActive, DateTime? LastLoginAt, string? AuthProvider, string? OrganizationName);
 
 // Registration models
 public record RegisterRequest(string OrganizationType, string OrganizationName, AdminInfo Admin, string Username, string Password);

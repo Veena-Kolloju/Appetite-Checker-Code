@@ -27,7 +27,6 @@ public class DbUser
     public string? Roles { get; set; } // Keep for backward compatibility
     public int? RoleId { get; set; } // FK to Role
     public int? CarrierID { get; set; } // FK to Carrier, null if Admin
-    public string? OrganizationId { get; set; }
     public string? OrganizationName { get; set; }
     public DateTime CreatedAt { get; set; }
     public bool IsActive { get; set; } = true;

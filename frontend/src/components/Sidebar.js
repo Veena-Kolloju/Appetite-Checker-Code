@@ -32,20 +32,27 @@ const Sidebar = ({ activeSection, setActiveSection }) => {
   const getMenuItems = () => {
     const baseItems = [
       { id: 'dashboard', label: 'Dashboard', icon: LayoutDashboard, color: 'from-primary-500 to-primary-600' },
-      { id: 'carriers', label: 'Carriers', icon: Users, color: 'from-blue-500 to-blue-600' },
+      { id: 'carriers', label: userRole === 'admin' ? 'All Carriers' : 'My Carrier', icon: Users, color: 'from-blue-500 to-blue-600' },
       { id: 'product-library', label: 'Product Library', icon: Package, color: 'from-purple-500 to-purple-600' },
       { id: 'rule-library', label: 'Rule Library', icon: BookOpen, color: 'from-accent-500 to-accent-600' },
-      { id: 'users', label: 'Users', icon: User, color: 'from-indigo-500 to-indigo-600', adminOnly: true },
+      { id: 'users', label: 'User Management', icon: UserPlus, color: 'from-indigo-500 to-indigo-600', 
+        disabled: userRole === 'user', disabledMessage: 'Only Super Admin and Carrier Admin can manage users' },
       { id: 'analytics', label: 'Analytics', icon: BarChart3, color: 'from-success-600 to-primary-500' },
-      { id: 'profile', label: userRole === 'carrier' ? 'My Profile' : 'Profile', icon: User, color: 'from-warning-600 to-danger-500' },
+      { id: 'profile', label: 'Profile', icon: User, color: 'from-warning-600 to-danger-500' },
       { id: 'rule-configuration', label: 'Rule Configuration', icon: Settings, color: 'from-accent-600 to-primary-600' },
     ];
 
-    // Filter items based on user role
-    return baseItems.filter(item => {
-      if (item.adminOnly && userRole !== 'admin') return false;
-      return true;
-    });
+    // Show role badge in sidebar
+    const roleLabels = {
+      'admin': 'Super Admin',
+      'carrier': 'Carrier Admin', 
+      'user': 'Carrier User'
+    };
+
+    return baseItems.map(item => ({
+      ...item,
+      roleLabel: userRole ? roleLabels[userRole] : 'User'
+    }));
   };
 
   const menuItems = getMenuItems();
@@ -78,7 +85,7 @@ const Sidebar = ({ activeSection, setActiveSection }) => {
               transition={{ delay: 0.2 }}
             >
               <h2 className="text-xl font-bold text-white">Canvas Portal</h2>
-              <p className="text-xs text-gray-400">Rule Management</p>
+              <p className="text-xs text-gray-400">{userRole === 'admin' ? 'Super Admin' : userRole === 'carrier' ? 'Carrier Admin' : 'Carrier User'}</p>
             </motion.div>
           )}
         </div>

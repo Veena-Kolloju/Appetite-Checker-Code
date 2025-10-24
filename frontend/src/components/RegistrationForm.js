@@ -57,7 +57,12 @@ const RegistrationForm = ({ onBack, onRegister }) => {
             <UserPlus className="w-8 h-8 text-white" />
           </motion.div>
           <h2 className="text-3xl font-bold gradient-text mb-2">Join Canvas Portal</h2>
-          <p className="text-gray-600">Create your carrier account</p>
+          <p className="text-gray-600">Create your account</p>
+          <div className="bg-blue-50 border border-blue-200 rounded-lg p-3 mt-4">
+            <p className="text-sm text-blue-800">
+              <strong>Account Type:</strong> {window.localStorage.getItem('userCount') === '0' ? 'Super Admin (First User)' : 'Carrier Admin'}
+            </p>
+          </div>
         </div>
 
         <form onSubmit={handleSubmit} className="space-y-6">

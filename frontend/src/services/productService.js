@@ -9,8 +9,11 @@ const getAuthHeaders = () => {
 };
 
 export const productService = {
-  async getProducts() {
-    const response = await fetch(`${API_CONFIG.BASE_URL}/database/products`, {
+  async getProducts(page = 1, pageSize = 25, carrier = null) {
+    let url = `${API_CONFIG.BASE_URL}/canvas/products?page=${page}&pageSize=${pageSize}`;
+    if (carrier) url += `&carrier=${carrier}`;
+    
+    const response = await fetch(url, {
       headers: getAuthHeaders()
     });
     
@@ -23,14 +26,21 @@ export const productService = {
   },
 
   async getProduct(id) {
-    const products = await this.getProducts();
-    const product = products.find(p => p.id === id);
-    if (!product) throw new Error('Product not found');
-    return product;
+    const response = await fetch(`${API_CONFIG.BASE_URL}/canvas/product/${id}`, {
+      headers: getAuthHeaders()
+    });
+    
+    if (!response.ok) {
+      if (response.status === 401) throw new Error('Please login again');
+      if (response.status === 403) throw new Error('Access denied');
+      if (response.status === 404) throw new Error('Product not found');
+      throw new Error('Failed to fetch product');
+    }
+    return await response.json();
   },
 
   async createProduct(data) {
-    const response = await fetch(`${API_CONFIG.BASE_URL}/database/products`, {
+    const response = await fetch(`${API_CONFIG.BASE_URL}/canvas/products`, {
       method: 'POST',
       headers: getAuthHeaders(),
       body: JSON.stringify(data)
@@ -47,7 +57,7 @@ export const productService = {
   },
 
   async updateProduct(id, data) {
-    const response = await fetch(`${API_CONFIG.BASE_URL}/database/products/${id}`, {
+    const response = await fetch(`${API_CONFIG.BASE_URL}/canvas/product/${id}`, {
       method: 'PUT',
       headers: getAuthHeaders(),
       body: JSON.stringify(data)
@@ -63,8 +73,18 @@ export const productService = {
   },
 
   async deleteProduct(id) {
-    // Note: Delete endpoint not implemented yet in DatabaseController
-    throw new Error('Delete functionality not implemented');
+    const response = await fetch(`${API_CONFIG.BASE_URL}/canvas/product/${id}`, {
+      method: 'DELETE',
+      headers: getAuthHeaders()
+    });
+    
+    if (!response.ok) {
+      if (response.status === 401) throw new Error('Please login again');
+      if (response.status === 403) throw new Error('Access denied');
+      if (response.status === 404) throw new Error('Product not found');
+      throw new Error('Failed to delete product');
+    }
+    return true;
   },
 
   async getProductTypes() {

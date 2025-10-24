@@ -44,9 +44,11 @@ public class JwtService : IJwtService
         var claims = new List<Claim>
         {
             new(ClaimTypes.NameIdentifier, user.Id),
+            new("sub", user.Id), // Standard JWT subject claim
+            new("id", user.Id), // Alternative ID claim
             new(ClaimTypes.Name, user.Name),
             new(ClaimTypes.Email, user.Email),
-            new("organization_id", user.OrganizationId?.ToString() ?? ""),
+            new("carrier_id", user.CarrierID?.ToString() ?? ""),
             new("organization_name", user.OrganizationName ?? ""),
             new("auth_provider", user.AuthProvider ?? "local")
         };

@@ -61,7 +61,7 @@ const DashboardContent = ({ onNavigate }) => {
         icon: Users, 
         color: 'from-success-500 to-success-600', 
         change: dashboardData.totalCarriers > 0 ? 'Active' : 'No Data',
-        hideForCarrier: true
+        hideForUser: true
       },
       { 
         title: 'Total Users', 
@@ -85,7 +85,7 @@ const DashboardContent = ({ onNavigate }) => {
       if (stat.adminOnly && userRole !== 'admin') {
         return false;
       }
-      if (stat.hideForCarrier && userRole === 'carrier') {
+      if (stat.hideForUser && (userRole === 'user' || userRole === 'carrier')) {
         return false;
       }
       return true;

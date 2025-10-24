@@ -80,10 +80,10 @@ public class CanvasController : ControllerBase
     }
 
     /// <summary>
-    /// List all carriers (admin only) with pagination and optional role filter
+    /// List all carriers with pagination and optional role filter
     /// </summary>
     [HttpGet("carriers")]
-    [Authorize(Roles = "admin")]
+    [Authorize(Roles = "admin,carrier")]
     public async Task<ActionResult<UsersResponse>> GetCarriers(
         [FromQuery] int page = 1,
         [FromQuery] int pageSize = 25,
@@ -104,7 +104,7 @@ public class CanvasController : ControllerBase
     /// Create a new carrier
     /// </summary>
     [HttpPost("carriers")]
-    [Authorize(Roles = "admin")]
+    [Authorize(Roles = "admin,carrier")]
     public async Task<ActionResult<UserProfile>> CreateCarrier([FromBody] UserProfile carrier)
     {
         try

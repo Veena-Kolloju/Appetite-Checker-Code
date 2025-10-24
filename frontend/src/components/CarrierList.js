@@ -94,11 +94,13 @@ const CarrierList = ({ onCreateCarrier }) => {
                 <h3 className="font-semibold text-lg">{carrier.legalName}</h3>
                 <p className="text-gray-600">{carrier.displayName}</p>
                 <p className="text-gray-500 text-sm">{carrier.primaryContactEmail}</p>
-                <div className="flex gap-2 mt-2">
-                  <span className="px-2 py-1 bg-blue-100 text-blue-800 rounded-full text-xs">
-                    {carrier.country || 'N/A'}
-                  </span>
-                </div>
+                {carrier.country && (
+                  <div className="flex gap-2 mt-2">
+                    <span className="px-2 py-1 bg-blue-100 text-blue-800 rounded-full text-xs">
+                      {carrier.country}
+                    </span>
+                  </div>
+                )}
               </div>
               <div className="flex items-center gap-2">
                 <div className="flex gap-2 ml-4">
@@ -148,10 +150,10 @@ const CarrierList = ({ onCreateCarrier }) => {
               <div><strong>ID:</strong> {viewingCarrier.carrierId}</div>
               <div><strong>Legal Name:</strong> {viewingCarrier.legalName}</div>
               <div><strong>Display Name:</strong> {viewingCarrier.displayName}</div>
-              <div><strong>Country:</strong> {viewingCarrier.country || 'N/A'}</div>
-              <div><strong>Primary Contact:</strong> {viewingCarrier.primaryContactName || 'N/A'}</div>
-              <div><strong>Email:</strong> {viewingCarrier.primaryContactEmail || 'N/A'}</div>
-              <div><strong>Phone:</strong> {viewingCarrier.primaryContactPhone || 'N/A'}</div>
+              {viewingCarrier.country && <div><strong>Country:</strong> {viewingCarrier.country}</div>}
+              {viewingCarrier.primaryContactName && <div><strong>Primary Contact:</strong> {viewingCarrier.primaryContactName}</div>}
+              {viewingCarrier.primaryContactEmail && <div><strong>Email:</strong> {viewingCarrier.primaryContactEmail}</div>}
+              {viewingCarrier.primaryContactPhone && <div><strong>Phone:</strong> {viewingCarrier.primaryContactPhone}</div>}
               <div><strong>Created:</strong> {new Date(viewingCarrier.createdAt).toLocaleDateString()}</div>
             </div>
           </div>

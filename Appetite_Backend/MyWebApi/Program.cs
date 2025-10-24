@@ -16,6 +16,7 @@ builder.Services.AddControllers();
 
 
 
+builder.Services.AddHttpContextAccessor();
 builder.Services.AddScoped<ICheckerService, CheckerService>();
 builder.Services.AddScoped<ISearchService, SearchService>();
 builder.Services.AddScoped<ICanvasService, CanvasService>();

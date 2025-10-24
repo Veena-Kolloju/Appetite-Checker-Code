@@ -40,7 +40,6 @@ public class AppDbContext : DbContext
             entity.Property(e => e.Roles).HasMaxLength(200);
             entity.Property(e => e.RoleId);
             entity.Property(e => e.CarrierID);
-            entity.Property(e => e.OrganizationId);
             entity.Property(e => e.OrganizationName).HasMaxLength(200);
             entity.Property(e => e.AuthProvider).HasMaxLength(50);
             entity.Property(e => e.PasswordResetToken).HasMaxLength(255);

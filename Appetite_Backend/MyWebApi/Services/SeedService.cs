@@ -37,94 +37,31 @@ public class SeedService
         var carrierRole = await _context.Roles.FirstAsync(r => r.RoleName == "Carrier");
         var userRole = await _context.Roles.FirstAsync(r => r.RoleName == "User");
 
-        // Clear existing users and reseed
-        if (await _context.Users.AnyAsync())
+        // Only seed users if none exist (don't clear existing users)
+        if (!await _context.Users.AnyAsync())
         {
-            _context.Users.RemoveRange(_context.Users);
-            await _context.SaveChangesAsync();
+            var defaultPassword = _configuration["SeedData:DefaultPassword"] ?? "TempPassword123!";
+            var users = new[]
+            {
+                new DbUser
+                {
+                    Id = "usr-001",
+                    Name = "System Admin",
+                    Email = "admin@appetitechecker.com",
+                    PasswordHash = _passwordService.HashPassword(defaultPassword),
+                    Roles = "admin",
+                    RoleId = adminRole.RoleId,
+
+                    OrganizationName = "System Organization",
+                    CreatedAt = DateTime.UtcNow,
+                    IsActive = true,
+                    AuthProvider = "local",
+                    FailedLoginAttempts = 0
+                }
+            };
+
+            _context.Users.AddRange(users);
         }
-
-        var defaultPassword = _configuration["SeedData:DefaultPassword"] ?? "TempPassword123!";
-        var users = new[]
-        {
-            new DbUser
-            {
-                Id = "usr-001",
-                Name = "System Admin",
-                Email = "admin@appetitechecker.com",
-                PasswordHash = _passwordService.HashPassword(defaultPassword),
-                Roles = "admin", // Keep for backward compatibility
-                RoleId = adminRole.RoleId,
-                OrganizationId = "SYS001",
-                OrganizationName = "System Organization",
-                CreatedAt = DateTime.UtcNow,
-                IsActive = true,
-                AuthProvider = "local",
-                FailedLoginAttempts = 0
-            },
-            new DbUser
-            {
-                Id = "usr-002",
-                Name = "John Carrier",
-                Email = "carrier@example.com",
-                PasswordHash = _passwordService.HashPassword(defaultPassword),
-                Roles = "carrier", // Keep for backward compatibility
-                RoleId = carrierRole.RoleId,
-                OrganizationId = "ABC001",
-                OrganizationName = "ABC Insurance",
-                CreatedAt = DateTime.UtcNow,
-                IsActive = true,
-                AuthProvider = "local",
-                FailedLoginAttempts = 0
-            },
-            new DbUser
-            {
-                Id = "usr-003",
-                Name = "Jane Agent",
-                Email = "agent@example.com",
-                PasswordHash = _passwordService.HashPassword(defaultPassword),
-                Roles = "user", // Keep for backward compatibility
-                RoleId = userRole.RoleId,
-                OrganizationId = "XYZ001",
-                OrganizationName = "XYZ Brokerage",
-                CreatedAt = DateTime.UtcNow,
-                IsActive = true,
-                AuthProvider = "local",
-                FailedLoginAttempts = 0
-            },
-            new DbUser
-            {
-                Id = "usr-004",
-                Name = "Mike Manager",
-                Email = "manager@demo.com",
-                PasswordHash = _passwordService.HashPassword(defaultPassword),
-                Roles = "admin", // Keep for backward compatibility
-                RoleId = adminRole.RoleId,
-                OrganizationId = "DEMO001",
-                OrganizationName = "Demo Corporation",
-                CreatedAt = DateTime.UtcNow,
-                IsActive = true,
-                AuthProvider = "local",
-                FailedLoginAttempts = 0
-            },
-            new DbUser
-            {
-                Id = "usr-005",
-                Name = "Sarah Smith",
-                Email = "sarah@carrier2.com",
-                PasswordHash = _passwordService.HashPassword(defaultPassword),
-                Roles = "carrier", // Keep for backward compatibility
-                RoleId = carrierRole.RoleId,
-                OrganizationId = "DEF001",
-                OrganizationName = "DEF Insurance Group",
-                CreatedAt = DateTime.UtcNow,
-                IsActive = true,
-                AuthProvider = "local",
-                FailedLoginAttempts = 0
-            }
-        };
-
-        _context.Users.AddRange(users);
         
         // Seed initial products only if they don't exist
         if (!await _context.Products.AnyAsync())

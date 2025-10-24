@@ -53,10 +53,11 @@ const ProductForm = ({ onBack, onSuccess, editProduct = null }) => {
           carrier: editProduct.carrier || ''
         });
       } else {
-        // Auto-populate carrier name from user's organization or name
+        // Auto-populate carrier name from user's organization name
+        const carrierName = userData.organizationName || userData.name || 'Default Carrier';
         setFormData(prev => ({
           ...prev,
-          carrier: userData.name || 'Default Carrier'
+          carrier: carrierName
         }));
       }
     }
