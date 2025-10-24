@@ -73,13 +73,15 @@ const CarrierList = ({ onCreateCarrier }) => {
           <Users className="w-6 h-6 text-primary-500 mr-2" />
           <h2 className="text-2xl font-bold">Carriers</h2>
         </div>
-        <button
-          onClick={onCreateCarrier}
-          className="flex items-center px-4 py-2 bg-primary-500 text-white rounded-lg hover:bg-primary-600"
-        >
-          <Plus className="w-4 h-4 mr-2" />
-          Add Carrier
-        </button>
+        {userRole === 'admin' && (
+          <button
+            onClick={onCreateCarrier}
+            className="flex items-center px-4 py-2 bg-primary-500 text-white rounded-lg hover:bg-primary-600"
+          >
+            <Plus className="w-4 h-4 mr-2" />
+            Add Carrier
+          </button>
+        )}
       </div>
 
       <div className="grid gap-4">

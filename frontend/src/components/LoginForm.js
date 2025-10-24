@@ -136,16 +136,6 @@ const LoginForm = ({ onBack, onLogin }) => {
           >
             Test API Connection
           </button>
-          
-          <button
-            type="button"
-            onClick={() => {
-              setFormData({...formData, username: 'admin@appetitechecker.com', password: 'Admin123!'});
-            }}
-            className="w-full mt-2 bg-blue-500 text-white py-2 px-4 rounded-xl text-sm"
-          >
-            Fill Admin Credentials
-          </button>
         </form>
 
         <motion.button

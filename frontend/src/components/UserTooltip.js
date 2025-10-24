@@ -11,7 +11,7 @@ const UserTooltip = ({ currentUser, children }) => {
     name: currentUser?.username || 'Demo User',
     email: currentUser?.carrierName ? `${currentUser.username}@${currentUser.carrierName.toLowerCase().replace(/\s+/g, '')}.com` : 'demo@example.com',
     company: currentUser?.carrierName || 'Demo Insurance Co.',
-    role: 'Carrier Admin',
+    role: currentUser?.username?.includes('admin') ? 'Admin' : (currentUser?.role || 'User'),
     joinDate: 'January 2024',
     location: 'New York, USA',
     lastLogin: 'Just now'
@@ -53,17 +53,12 @@ const UserTooltip = ({ currentUser, children }) => {
             onMouseLeave={() => setIsVisible(false)}
           >
             {/* Header */}
-            <div className="flex items-center space-x-4 mb-4">
-              <div className="w-16 h-16 bg-gradient-to-r from-primary-500 to-accent-500 rounded-full flex items-center justify-center text-white text-xl font-bold shadow-lg">
-                {userDetails.name.charAt(0).toUpperCase()}
-              </div>
-              <div>
-                <h3 className="text-lg font-bold text-gray-800">{userDetails.name}</h3>
-                <p className="text-sm text-gray-600">{userDetails.role}</p>
-                <div className="flex items-center space-x-1 mt-1">
-                  <div className="w-2 h-2 bg-success-500 rounded-full animate-pulse"></div>
-                  <span className="text-xs text-success-600 font-medium">Online</span>
-                </div>
+            <div className="mb-4">
+              <h3 className="text-lg font-bold text-gray-800">{userDetails.name}</h3>
+              <p className="text-sm text-gray-600">{userDetails.role}</p>
+              <div className="flex items-center space-x-1 mt-1">
+                <div className="w-2 h-2 bg-success-500 rounded-full animate-pulse"></div>
+                <span className="text-xs text-success-600 font-medium">Online</span>
               </div>
             </div>
 
