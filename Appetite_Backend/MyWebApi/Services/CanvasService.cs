@@ -51,8 +51,7 @@ public class CanvasService : ICanvasService
 
     private async Task<(string userId, string[] roles, int? carrierId)> GetCurrentUserContextAsync()
     {
-        var userId = _httpContextAccessor.HttpContext?.User?.FindFirst("sub")?.Value 
-                    ?? _httpContextAccessor.HttpContext?.User?.FindFirst("id")?.Value;
+        var userId = _httpContextAccessor.HttpContext?.User?.FindFirst(System.Security.Claims.ClaimTypes.NameIdentifier)?.Value;
         
         if (string.IsNullOrEmpty(userId))
             throw new UnauthorizedAccessException("User not authenticated");
@@ -838,28 +837,44 @@ public class CanvasService : ICanvasService
 
     public async Task<CanvasAnalyticsResponse> GetAnalyticsAsync(DateTime? since)
     {
+        var (currentUserId, currentRoles, currentCarrierId) = await GetCurrentUserContextAsync();
         var sinceDate = since ?? DateTime.UtcNow.AddDays(-30);
         
-        var totalRules = await _context.Rules.CountAsync();
-        var totalUsers = await _context.Users.CountAsync();
-        var totalCarriers = await _context.Carriers.CountAsync();
-        var totalProducts = await _context.Products.CountAsync();
+        // Apply role-based filtering
+        var rulesQuery = _context.Rules.AsQueryable();
+        var usersQuery = _context.Users.AsQueryable();
+        var carriersQuery = _context.Carriers.AsQueryable();
+        var productsQuery = _context.Products.AsQueryable();
         
-        var rulesByPriority = await _context.Rules
+        if (!IsSuperAdmin(currentRoles))
+        {
+            // Filter data to current user's carrier
+            rulesQuery = rulesQuery.Where(r => r.CarrierID == currentCarrierId);
+            usersQuery = usersQuery.Where(u => u.CarrierID == currentCarrierId);
+            carriersQuery = carriersQuery.Where(c => c.CarrierId == currentCarrierId);
+            productsQuery = productsQuery.Where(p => p.CarrierID == currentCarrierId);
+        }
+        
+        var totalRules = await rulesQuery.CountAsync();
+        var totalUsers = await usersQuery.CountAsync();
+        var totalCarriers = await carriersQuery.CountAsync();
+        var totalProducts = await productsQuery.CountAsync();
+        
+        var rulesByPriority = await rulesQuery
             .Where(r => r.Priority != null)
             .GroupBy(r => r.Priority)
             .ToDictionaryAsync(g => g.Key!, g => g.Count());
             
-        var productsByCarrier = await _context.Products
+        var productsByCarrier = await productsQuery
             .GroupBy(p => p.Carrier)
             .ToDictionaryAsync(g => g.Key, g => g.Count());
             
-        var usersByRole = await _context.Users
+        var usersByRole = await usersQuery
             .Where(u => u.Roles != null)
             .GroupBy(u => u.Roles)
             .ToDictionaryAsync(g => g.Key!, g => g.Count());
         
-        var recentUploads = await _context.Rules
+        var recentUploads = await rulesQuery
             .Where(r => r.CreatedAt >= sinceDate)
             .CountAsync();
         
@@ -867,9 +882,9 @@ public class CanvasService : ICanvasService
         for (int i = 29; i >= 0; i--)
         {
             var date = DateTime.UtcNow.AddDays(-i);
-            var usersCount = await _context.Users.Where(u => u.CreatedAt <= date).CountAsync();
-            var rulesCount = await _context.Rules.Where(r => r.CreatedAt <= date).CountAsync();
-            var carriersCount = await _context.Carriers.Where(c => c.CreatedAt <= date).CountAsync();
+            var usersCount = await usersQuery.Where(u => u.CreatedAt <= date).CountAsync();
+            var rulesCount = await rulesQuery.Where(r => r.CreatedAt <= date).CountAsync();
+            var carriersCount = await carriersQuery.Where(c => c.CreatedAt <= date).CountAsync();
             
             growthData.Add(new RealGrowthData(date.ToString("yyyy-MM-dd"), usersCount, rulesCount, carriersCount));
         }

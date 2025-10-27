@@ -6,7 +6,7 @@ import { userService } from '../services/userService';
 const UserForm = ({ onBack, onSuccess }) => {
   const [formData, setFormData] = useState({
     name: '',
-    emailId: '',
+    email: '',
     role: 'user',
     organizationName: '',
     orgnId: ''
@@ -49,7 +49,7 @@ const UserForm = ({ onBack, onSuccess }) => {
   const handleSubmit = async (e) => {
     e.preventDefault();
     
-    if (!formData.name || !formData.emailId) {
+    if (!formData.name || !formData.email) {
       setError('Name and Email are required');
       return;
     }
@@ -105,7 +105,7 @@ const UserForm = ({ onBack, onSuccess }) => {
               <button
                 onClick={() => {
                   setCreatedUser(null);
-                  setFormData({ name: '', emailId: '', role: 'user', organizationName: '', orgnId: '' });
+                  setFormData({ name: '', email: '', role: 'user', organizationName: '', orgnId: '' });
                 }}
                 className="px-6 py-3 bg-primary-500 text-white rounded-lg hover:bg-primary-600"
               >
@@ -149,8 +149,8 @@ const UserForm = ({ onBack, onSuccess }) => {
               </label>
               <input
                 type="email"
-                name="emailId"
-                value={formData.emailId}
+                name="email"
+                value={formData.email}
                 onChange={handleChange}
                 required
                 className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-transparent"

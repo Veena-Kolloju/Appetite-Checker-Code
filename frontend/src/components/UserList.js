@@ -108,8 +108,8 @@ const UserList = ({ onCreateUser }) => {
                     <label className="block text-sm font-medium text-gray-700 mb-1">Email</label>
                     <input
                       type="email"
-                      value={editData.emailId || ''}
-                      onChange={(e) => handleEditChange('emailId', e.target.value)}
+                      value={editData.email || ''}
+                      onChange={(e) => handleEditChange('email', e.target.value)}
                       className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary-500"
                     />
                   </div>
@@ -169,17 +169,17 @@ const UserList = ({ onCreateUser }) => {
                   
                   <div>
                     <label className="block text-sm font-medium text-gray-500 mb-1">Email</label>
-                    <span className="text-gray-700">{user.emailId}</span>
+                    <span className="text-gray-700">{user.email}</span>
                   </div>
                   
                   <div>
                     <label className="block text-sm font-medium text-gray-500 mb-1">Role</label>
                     <span className={`inline-block px-2 py-1 rounded-full text-xs ${
-                      user.role === 'admin' ? 'bg-red-100 text-red-800' :
-                      user.role === 'carrier' ? 'bg-blue-100 text-blue-800' :
+                      user.roles?.[0] === 'admin' ? 'bg-red-100 text-red-800' :
+                      user.roles?.[0] === 'carrier' ? 'bg-blue-100 text-blue-800' :
                       'bg-green-100 text-green-800'
                     }`}>
-                      {user.role}
+                      {user.roles?.[0] || 'No Role'}
                     </span>
                   </div>
                   

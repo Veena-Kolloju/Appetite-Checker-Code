@@ -35,7 +35,7 @@ export const userService = {
     try {
       const payload = {
         name: userData.name,
-        email: userData.emailId,
+        email: userData.email,
         role: userData.role,
         organizationName: userData.organizationName || ''
       };

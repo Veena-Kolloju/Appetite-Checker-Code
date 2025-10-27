@@ -25,6 +25,7 @@ builder.Services.AddScoped<IPasswordService, PasswordService>();
 builder.Services.AddScoped<IJwtService, JwtService>();
 builder.Services.AddScoped<IIdGenerationService, IdGenerationService>();
 builder.Services.AddScoped<SeedService>();
+builder.Services.AddHttpContextAccessor();
 
 // Add JWT Authentication
 var jwtSettings = builder.Configuration.GetSection("Jwt");
