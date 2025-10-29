@@ -705,9 +705,10 @@ const SectionContent = ({ section, currentUser }) => {
 
   if (section === 'profile') {
     const profileData = {
-      name: formData.name || currentUser?.username || '',
-      email: formData.email || (currentUser?.carrierName ? `${currentUser.username}@${currentUser.carrierName.toLowerCase().replace(/\s+/g, '')}.com` : `${currentUser?.username || 'user'}@example.com`),
-      role: formData.role || 'Carrier Admin',
+      name: formData.name || currentUser?.name || currentUser?.username || '',
+      email: formData.email || currentUser?.email || 'No email provided',
+      role: formData.role || currentUser?.roles?.[0] || 'User',
+      organization: formData.organization || currentUser?.organizationName || 'No organization',
       phone: formData.phone || 'Not provided'
     };
 
@@ -761,6 +762,10 @@ const SectionContent = ({ section, currentUser }) => {
                 <span className="text-gray-700">{profileData.role}</span>
               </div>
               <div>
+                <label className="block text-sm font-medium text-gray-500 mb-2">Organization</label>
+                <span className="text-gray-700">{profileData.organization}</span>
+              </div>
+              <div>
                 <label className="block text-sm font-medium text-gray-500 mb-2">Phone</label>
                 <span className="text-gray-700">{profileData.phone}</span>
               </div>
@@ -809,8 +814,21 @@ const SectionContent = ({ section, currentUser }) => {
                   name="role"
                   value={formData.role || ''}
                   onChange={handleInputChange}
-                  className="w-full px-4 py-3 bg-white border border-gray-200 rounded-xl focus:ring-2 focus:ring-warning-500 focus:border-transparent transition-all duration-200"
-                  placeholder="Enter your role"
+                  disabled
+                  className="w-full px-4 py-3 bg-gray-100 border border-gray-200 rounded-xl text-gray-600 cursor-not-allowed"
+                  placeholder="Role cannot be changed"
+                />
+              </div>
+              <div>
+                <label className="block text-sm font-semibold text-gray-700 mb-2">Organization</label>
+                <input
+                  type="text"
+                  name="organization"
+                  value={formData.organization || ''}
+                  onChange={handleInputChange}
+                  disabled
+                  className="w-full px-4 py-3 bg-gray-100 border border-gray-200 rounded-xl text-gray-600 cursor-not-allowed"
+                  placeholder="Organization cannot be changed"
                 />
               </div>
               <div>
