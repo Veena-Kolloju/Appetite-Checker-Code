@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { motion } from 'framer-motion';
-import { ArrowLeft, Save, User, RefreshCw } from 'lucide-react';
+import { ArrowLeft, Save, User, RefreshCw, Copy, Check } from 'lucide-react';
 import { userService } from '../services/userService';
 import { carrierService } from '../services/carrierService';
 
@@ -17,6 +17,7 @@ const UserForm = ({ onBack, onSuccess }) => {
   const [createdUser, setCreatedUser] = useState(null);
   const [carriers, setCarriers] = useState([]);
   const [refreshingCarriers, setRefreshingCarriers] = useState(false);
+  const [copied, setCopied] = useState(false);
 
   useEffect(() => {
     const loadData = async () => {
@@ -81,6 +82,16 @@ const UserForm = ({ onBack, onSuccess }) => {
     }
   };
 
+  const copyToClipboard = async (text) => {
+    try {
+      await navigator.clipboard.writeText(text);
+      setCopied(true);
+      setTimeout(() => setCopied(false), 2000);
+    } catch (err) {
+      console.error('Failed to copy:', err);
+    }
+  };
+
   return (
     <motion.div
       initial={{ opacity: 0, y: 20 }}
@@ -106,8 +117,17 @@ const UserForm = ({ onBack, onSuccess }) => {
             <div className="space-y-3">
               <div><strong>User ID:</strong> {createdUser.userId}</div>
               <div><strong>Email:</strong> {createdUser.email}</div>
-              <div><strong>Temporary Password:</strong> 
-                <span className="bg-gray-100 px-2 py-1 rounded font-mono ml-2">{createdUser.temporaryPassword}</span>
+              <div className="flex items-center gap-2">
+                <span><strong>Temporary Password:</strong></span>
+                <span className="bg-gray-100 px-2 py-1 rounded font-mono">{createdUser.temporaryPassword}</span>
+                <button
+                  onClick={() => copyToClipboard(createdUser.temporaryPassword)}
+                  className="flex items-center px-2 py-1 text-gray-600 hover:text-gray-800 hover:bg-gray-100 rounded transition-colors"
+                  title="Copy to clipboard"
+                >
+                  {copied ? <Check className="w-4 h-4 text-green-600" /> : <Copy className="w-4 h-4" />}
+                </button>
+                {copied && <span className="text-sm text-green-600 font-medium">Copied!</span>}
               </div>
               <div className="bg-yellow-50 border border-yellow-200 rounded p-3 mt-4">
                 <p className="text-sm text-yellow-800">
