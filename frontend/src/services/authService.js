@@ -37,7 +37,10 @@ export const authService = {
       })
     });
     
-    if (!response.ok) throw new Error('Registration failed');
+    if (!response.ok) {
+      const errorText = await response.text();
+      throw new Error(`Registration failed: ${errorText}`);
+    }
     return await response.json();
   }
 };

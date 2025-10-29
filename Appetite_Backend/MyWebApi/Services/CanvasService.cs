@@ -114,7 +114,7 @@ public class CanvasService : ICanvasService
 
         var token = _jwtService.GenerateToken(user);
         var roles = user.Roles?.Split(',', StringSplitOptions.RemoveEmptyEntries) ?? Array.Empty<string>();
-        var userInfo = new UserInfo(user.Id, user.Name, roles, user.IsActive, user.LastLoginAt, user.AuthProvider, user.OrganizationName);
+        var userInfo = new UserInfo(user.Id, user.Name, user.Email, roles, user.IsActive, user.LastLoginAt, user.AuthProvider, user.OrganizationName);
         return new LoginResponse(token, "Bearer", 3600, userInfo);
     }
 
@@ -164,13 +164,19 @@ public class CanvasService : ICanvasService
             OrganizationName = role == "admin" ? "System" : request.OrganizationName,
             CreatedAt = DateTime.UtcNow,
             IsActive = true,
-            AuthProvider = "local"
+            AuthProvider = "local",
+            LastLoginAt = DateTime.UtcNow
         };
         
         _context.Users.Add(newUser);
         await _context.SaveChangesAsync();
         
-        return new RegisterResponse(userId, "active", $"Registration successful as {role}. You can now login with your credentials.");
+        // Generate JWT token for immediate login
+        var token = _jwtService.GenerateToken(newUser);
+        var roles = new[] { role };
+        var userInfo = new UserInfo(newUser.Id, newUser.Name, newUser.Email, roles, newUser.IsActive, newUser.LastLoginAt, newUser.AuthProvider, newUser.OrganizationName);
+        
+        return new RegisterResponse(userId, "active", $"Registration successful as {role}. You are now logged in.", token, userInfo);
     }
 
     public async Task<UserProfile> GetCarrierAsync(string id)

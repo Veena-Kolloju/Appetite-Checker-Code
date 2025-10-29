@@ -22,8 +22,15 @@ const RegistrationForm = ({ onBack, onRegister }) => {
         formData.username && formData.password && formData.agreeTerms) {
       try {
         const result = await authService.register(formData);
+        
+        // Store authentication data if provided
+        if (result.accessToken && result.user) {
+          localStorage.setItem('token', result.accessToken);
+          localStorage.setItem('user', JSON.stringify(result.user));
+        }
+        
         alert('Registration successful! ' + result.message);
-        onRegister(formData);
+        onRegister(formData, result);
       } catch (error) {
         alert('Registration failed: ' + error.message);
       }

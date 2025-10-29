@@ -8,10 +8,10 @@ const UserTooltip = ({ currentUser, children }) => {
   const [position, setPosition] = useState({ top: 0, right: 0 });
 
   const userDetails = {
-    name: currentUser?.username || 'Demo User',
-    email: currentUser?.carrierName ? `${currentUser.username}@${currentUser.carrierName.toLowerCase().replace(/\s+/g, '')}.com` : 'demo@example.com',
-    company: currentUser?.carrierName || 'Demo Insurance Co.',
-    role: currentUser?.username?.includes('admin') ? 'Admin' : (currentUser?.role || 'User'),
+    name: currentUser?.name || currentUser?.username || 'Demo User',
+    email: currentUser?.email || (currentUser?.carrierName ? `${currentUser.username}@${currentUser.carrierName.toLowerCase().replace(/\s+/g, '')}.com` : 'demo@example.com'),
+    company: currentUser?.organizationName || currentUser?.carrierName || 'Demo Insurance Co.',
+    role: currentUser?.roles?.[0] || (currentUser?.username?.includes('admin') ? 'Admin' : (currentUser?.role || 'User')),
     joinDate: 'January 2024',
     location: 'New York, USA',
     lastLogin: 'Just now'

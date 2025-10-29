@@ -20,13 +20,16 @@ const AuthPage = () => {
     navigate('/dashboard');
   };
 
-  const handleRegister = (formData) => {
-    // Store user data (in real app, this would be handled by authentication service)
-    localStorage.setItem('currentUser', JSON.stringify({
-      username: formData.username,
-      carrierName: formData.carrierName,
-      type: 'registration'
-    }));
+  const handleRegister = (formData, result) => {
+    // If registration included authentication, user data is already stored
+    // Otherwise, store basic user data for backward compatibility
+    if (!result?.accessToken) {
+      localStorage.setItem('currentUser', JSON.stringify({
+        username: formData.username,
+        carrierName: formData.carrierName,
+        type: 'registration'
+      }));
+    }
     navigate('/dashboard');
   };
 

@@ -34,16 +34,27 @@ const Dashboard = () => {
   const navigate = useNavigate();
 
   useEffect(() => {
-    const user = localStorage.getItem('currentUser');
-    if (user) {
-      setCurrentUser(JSON.parse(user));
+    // Check for proper authentication (JWT token and user data)
+    const token = localStorage.getItem('token');
+    const userData = localStorage.getItem('user');
+    const currentUserData = localStorage.getItem('currentUser');
+    
+    if (token && userData) {
+      // Properly authenticated user
+      setCurrentUser(JSON.parse(userData));
+    } else if (currentUserData) {
+      // Legacy user data (for backward compatibility)
+      setCurrentUser(JSON.parse(currentUserData));
     } else {
+      // No authentication data found
       navigate('/');
     }
   }, [navigate]);
 
   const handleLogout = () => {
     localStorage.removeItem('currentUser');
+    localStorage.removeItem('token');
+    localStorage.removeItem('user');
     navigate('/');
   };
 
@@ -100,7 +111,7 @@ const Dashboard = () => {
 
               <UserTooltip currentUser={currentUser}>
                 <div className="w-10 h-10 bg-gradient-to-r from-primary-500 to-accent-500 rounded-full flex items-center justify-center text-white font-semibold shadow-lg hover:scale-105 transition-transform cursor-pointer">
-                  {currentUser.username.charAt(0).toUpperCase()}
+                  {(currentUser.username || currentUser.name || 'U').charAt(0).toUpperCase()}
                 </div>
               </UserTooltip>
 
