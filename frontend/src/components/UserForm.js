@@ -1,41 +1,44 @@
 import React, { useState, useEffect } from 'react';
 import { motion } from 'framer-motion';
-import { ArrowLeft, Save, User } from 'lucide-react';
+import { ArrowLeft, Save, User, RefreshCw } from 'lucide-react';
 import { userService } from '../services/userService';
+import { carrierService } from '../services/carrierService';
 
 const UserForm = ({ onBack, onSuccess }) => {
   const [formData, setFormData] = useState({
     name: '',
     email: '',
     role: 'user',
-    organizationName: '',
-    orgnId: ''
+    carrierID: ''
   });
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState('');
   const [userRole, setUserRole] = useState('');
   const [createdUser, setCreatedUser] = useState(null);
+  const [carriers, setCarriers] = useState([]);
+  const [refreshingCarriers, setRefreshingCarriers] = useState(false);
 
   useEffect(() => {
-    try {
-      const user = localStorage.getItem('user');
-      if (user) {
-        const userData = JSON.parse(user);
-        const roles = Array.isArray(userData.roles) ? userData.roles : (userData.roles ? userData.roles.split(',') : []);
-        setUserRole(roles[0] || 'user');
-        
-        // Auto-fill organization for Carrier Admin
-        if (roles[0] === 'carrier' && userData.organizationName) {
-          setFormData(prev => ({
-            ...prev,
-            organizationName: userData.organizationName
-          }));
+    const loadData = async () => {
+      try {
+        const user = localStorage.getItem('user');
+        if (user) {
+          const userData = JSON.parse(user);
+          const roles = Array.isArray(userData.roles) ? userData.roles : (userData.roles ? userData.roles.split(',') : []);
+          setUserRole(roles[0] || 'user');
+          
+          // Load carriers for Super Admin
+          if (roles[0] === 'admin') {
+            const carriersData = await carrierService.getCarriers();
+            setCarriers(carriersData.data || []);
+          }
         }
+      } catch (err) {
+        console.error('Error loading data:', err);
+        setUserRole('user');
       }
-    } catch (err) {
-      console.error('Error parsing user data:', err);
-      setUserRole('user');
-    }
+    };
+    loadData();
   }, []);
 
   const handleChange = (e) => {
@@ -63,6 +66,18 @@ const UserForm = ({ onBack, onSuccess }) => {
       setError(err.message);
     } finally {
       setLoading(false);
+    }
+  };
+
+  const refreshCarriers = async () => {
+    try {
+      setRefreshingCarriers(true);
+      const carriersData = await carrierService.getCarriers();
+      setCarriers(carriersData.data || []);
+    } catch (err) {
+      console.error('Error refreshing carriers:', err);
+    } finally {
+      setRefreshingCarriers(false);
     }
   };
 
@@ -105,7 +120,7 @@ const UserForm = ({ onBack, onSuccess }) => {
               <button
                 onClick={() => {
                   setCreatedUser(null);
-                  setFormData({ name: '', email: '', role: 'user', organizationName: '', orgnId: '' });
+                  setFormData({ name: '', email: '', role: 'user', carrierID: '' });
                 }}
                 className="px-6 py-3 bg-primary-500 text-white rounded-lg hover:bg-primary-600"
               >
@@ -176,45 +191,42 @@ const UserForm = ({ onBack, onSuccess }) => {
             </div>
 
             {userRole === 'admin' && (
-              <>
-                <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-2">
-                    Organization Name
+              <div className="md:col-span-2">
+                <div className="flex items-center justify-between mb-2">
+                  <label className="block text-sm font-medium text-gray-700">
+                    CarrierID
                   </label>
-                  <input
-                    type="text"
-                    name="organizationName"
-                    value={formData.organizationName}
-                    onChange={handleChange}
-                    className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-transparent"
-                    placeholder="Enter organization name"
-                  />
+                  <button
+                    type="button"
+                    onClick={refreshCarriers}
+                    disabled={refreshingCarriers}
+                    className="flex items-center px-2 py-1 text-xs text-gray-600 hover:text-gray-800 hover:bg-gray-100 rounded"
+                  >
+                    <RefreshCw className={`w-3 h-3 mr-1 ${refreshingCarriers ? 'animate-spin' : ''}`} />
+                    Refresh
+                  </button>
                 </div>
-
-                <div className="md:col-span-2">
-                  <label className="block text-sm font-medium text-gray-700 mb-2">
-                    Organization ID
-                  </label>
-                  <input
-                    type="text"
-                    name="orgnId"
-                    value={formData.orgnId}
-                    onChange={handleChange}
-                    className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-transparent"
-                    placeholder="Enter organization ID"
-                  />
-                </div>
-              </>
+                <select
+                  name="carrierID"
+                  value={formData.carrierID}
+                  onChange={handleChange}
+                  className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-transparent"
+                >
+                  <option value="">Select Carrier (Optional)</option>
+                  {carriers.map((carrier) => (
+                    <option key={carrier.carrierId} value={carrier.carrierId}>
+                      {carrier.displayName} (ID: {carrier.carrierId})
+                    </option>
+                  ))}
+                </select>
+              </div>
             )}
             
             {userRole === 'carrier' && (
               <div className="md:col-span-2">
                 <div className="bg-blue-50 border border-blue-200 rounded-lg p-4">
                   <p className="text-sm text-blue-800">
-                    <strong>Organization:</strong> {formData.organizationName || 'Your Organization'}
-                  </p>
-                  <p className="text-xs text-blue-600 mt-1">
-                    New users will be added to your organization automatically.
+                    <strong>Note:</strong> New users will be added to your carrier automatically.
                   </p>
                 </div>
               </div>

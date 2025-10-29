@@ -907,16 +907,26 @@ public class CanvasService : ICanvasService
         var tempPassword = GenerateTemporaryPassword();
         var hashedPassword = _passwordService.HashPassword(tempPassword);
         
-        // Determine organization details based on current user role
-        string organizationName = request.OrganizationName;
+        // Determine CarrierID based on current user role and request
         int? carrierIdToAssign = null;
+        string? organizationName = null;
         
-        if (IsCarrierAdmin(currentRoles))
+        if (IsSuperAdmin(currentRoles))
         {
-            // Carrier Admin creating user - use their carrier and organization
+            // Super Admin can assign any CarrierID
+            carrierIdToAssign = request.CarrierID;
+            if (carrierIdToAssign.HasValue)
+            {
+                var carrier = await _context.Carriers.FirstOrDefaultAsync(c => c.CarrierId == carrierIdToAssign);
+                organizationName = carrier?.DisplayName;
+            }
+        }
+        else if (IsCarrierAdmin(currentRoles))
+        {
+            // Carrier Admin can only create users for their own carrier
             carrierIdToAssign = currentCarrierId;
             var currentUser = await _context.Users.FirstOrDefaultAsync(u => u.Id == currentUserId);
-            organizationName = currentUser?.OrganizationName ?? request.OrganizationName;
+            organizationName = currentUser?.OrganizationName;
         }
         
         var newUser = new DbUser

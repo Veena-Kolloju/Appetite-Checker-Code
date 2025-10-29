@@ -46,7 +46,7 @@ public record CarrierSummary(string CarrierId, string LegalName, string DisplayN
 public record PaginationInfo(int Page, int PageSize, int TotalPages, int TotalItems);
 
 // Quick user creation
-public record CreateUserRequest(string Name, string Email, string Role, string OrganizationName);
+public record CreateUserRequest(string Name, string Email, string Role, int? CarrierID);
 public record CreateUserResponse(string UserId, string Email, string TemporaryPassword, string Message);
 
 // Internal storage models

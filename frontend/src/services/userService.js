@@ -37,7 +37,7 @@ export const userService = {
         name: userData.name,
         email: userData.email,
         role: userData.role,
-        organizationName: userData.organizationName || ''
+        carrierID: userData.carrierID || null
       };
       
       const response = await fetch(`${API_CONFIG.BASE_URL}/canvas/create-user`, {
@@ -62,10 +62,17 @@ export const userService = {
 
   async updateUser(userId, userData) {
     try {
+      const payload = {
+        name: userData.name,
+        email: userData.email,
+        role: userData.role,
+        carrierID: userData.carrierID ? parseInt(userData.carrierID) : null
+      };
+      
       const response = await fetch(`${API_CONFIG.BASE_URL}/canvas/carrier/${userId}`, {
         method: 'PUT',
         headers: getAuthHeaders(),
-        body: JSON.stringify(userData)
+        body: JSON.stringify(payload)
       });
       
       if (!response.ok) {

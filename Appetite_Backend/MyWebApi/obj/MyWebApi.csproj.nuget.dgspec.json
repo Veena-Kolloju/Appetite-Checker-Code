@@ -1,17 +1,17 @@
 {
   "format": 1,
   "restore": {
-    "C:\\Users\\VeenaKolloju\\Downloads\\Appietet_checker_Demo 1 (1)\\Appietet_checker\\Appetite_Backend\\MyWebApi\\MyWebApi.csproj": {}
+    "C:\\VS Code\\Appetite_Checker_Clone\\Appetite-checker-code\\Appetite_Backend\\MyWebApi\\MyWebApi.csproj": {}
   },
   "projects": {
-    "C:\\Users\\VeenaKolloju\\Downloads\\Appietet_checker_Demo 1 (1)\\Appietet_checker\\Appetite_Backend\\MyWebApi\\MyWebApi.csproj": {
+    "C:\\VS Code\\Appetite_Checker_Clone\\Appetite-checker-code\\Appetite_Backend\\MyWebApi\\MyWebApi.csproj": {
       "version": "1.0.0",
       "restore": {
-        "projectUniqueName": "C:\\Users\\VeenaKolloju\\Downloads\\Appietet_checker_Demo 1 (1)\\Appietet_checker\\Appetite_Backend\\MyWebApi\\MyWebApi.csproj",
+        "projectUniqueName": "C:\\VS Code\\Appetite_Checker_Clone\\Appetite-checker-code\\Appetite_Backend\\MyWebApi\\MyWebApi.csproj",
         "projectName": "MyWebApi",
-        "projectPath": "C:\\Users\\VeenaKolloju\\Downloads\\Appietet_checker_Demo 1 (1)\\Appietet_checker\\Appetite_Backend\\MyWebApi\\MyWebApi.csproj",
+        "projectPath": "C:\\VS Code\\Appetite_Checker_Clone\\Appetite-checker-code\\Appetite_Backend\\MyWebApi\\MyWebApi.csproj",
         "packagesPath": "C:\\Users\\VeenaKolloju\\.nuget\\packages\\",
-        "outputPath": "C:\\Users\\VeenaKolloju\\Downloads\\Appietet_checker_Demo 1 (1)\\Appietet_checker\\Appetite_Backend\\MyWebApi\\obj\\",
+        "outputPath": "C:\\VS Code\\Appetite_Checker_Clone\\Appetite-checker-code\\Appetite_Backend\\MyWebApi\\obj\\",
         "projectStyle": "PackageReference",
         "configFilePaths": [
           "C:\\Users\\VeenaKolloju\\AppData\\Roaming\\NuGet\\NuGet.Config"

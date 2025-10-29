@@ -126,21 +126,13 @@ const UserList = ({ onCreateUser }) => {
                     </select>
                   </div>
                   <div>
-                    <label className="block text-sm font-medium text-gray-700 mb-1">Organization Name</label>
+                    <label className="block text-sm font-medium text-gray-700 mb-1">CarrierID</label>
                     <input
-                      type="text"
-                      value={editData.organizationName || ''}
-                      onChange={(e) => handleEditChange('organizationName', e.target.value)}
+                      type="number"
+                      value={editData.carrierID || ''}
+                      onChange={(e) => handleEditChange('carrierID', e.target.value)}
                       className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary-500"
-                    />
-                  </div>
-                  <div>
-                    <label className="block text-sm font-medium text-gray-700 mb-1">Organization ID</label>
-                    <input
-                      type="text"
-                      value={editData.orgnId || ''}
-                      onChange={(e) => handleEditChange('orgnId', e.target.value)}
-                      className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary-500"
+                      placeholder="Enter Carrier ID"
                     />
                   </div>
                 </div>
@@ -183,17 +175,10 @@ const UserList = ({ onCreateUser }) => {
                     </span>
                   </div>
                   
-                  {user.organizationName && (
+                  {user.carrierID && (
                     <div>
-                      <label className="block text-sm font-medium text-gray-500 mb-1">Organization</label>
-                      <span className="text-gray-700">{user.organizationName}</span>
-                    </div>
-                  )}
-                  
-                  {user.orgnId && (
-                    <div>
-                      <label className="block text-sm font-medium text-gray-500 mb-1">Organization ID</label>
-                      <span className="text-gray-700">{user.orgnId}</span>
+                      <label className="block text-sm font-medium text-gray-500 mb-1">CarrierID</label>
+                      <span className="text-gray-700">{user.carrierID}</span>
                     </div>
                   )}
                 </div>

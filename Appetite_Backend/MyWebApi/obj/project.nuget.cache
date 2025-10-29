@@ -1,8 +1,8 @@
 {
   "version": 2,
-  "dgSpecHash": "d5oNUX3W6l4=",
+  "dgSpecHash": "Aterlvif9Yw=",
   "success": true,
-  "projectFilePath": "C:\\Users\\VeenaKolloju\\Downloads\\Appietet_checker_Demo 1 (1)\\Appietet_checker\\Appetite_Backend\\MyWebApi\\MyWebApi.csproj",
+  "projectFilePath": "C:\\VS Code\\Appetite_Checker_Clone\\Appetite-checker-code\\Appetite_Backend\\MyWebApi\\MyWebApi.csproj",
   "expectedPackageFiles": [
     "C:\\Users\\VeenaKolloju\\.nuget\\packages\\azure.core\\1.25.0\\azure.core.1.25.0.nupkg.sha512",
     "C:\\Users\\VeenaKolloju\\.nuget\\packages\\azure.identity\\1.7.0\\azure.identity.1.7.0.nupkg.sha512",
